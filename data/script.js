@@ -23,7 +23,7 @@ var gaugeTemp = new LinearGauge({
         {
             from: 0,
             to: 185,
-            color: "rgba(240, 250, 250, .75)",
+            color: "rgba(225, 250, 250, .75)",
         },
         {
             from: 185,
