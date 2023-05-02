@@ -33,7 +33,7 @@ MAX6675 thermocouple(5, 23, 19); // SCK, CS, SO
 
 int temperature, humidity;
 
-const char *mainTitle = "Tostador";
+const char *mainTitle = "Tostador       ";
 
 int timerCount, counter;
 bool timerIsOn = false;
@@ -138,7 +138,7 @@ String formatTime(int minutes, int seconds)
   time = (seconds < 10) ? time + String("0") + String(seconds) : time + String(seconds);
   if (min12)
   {
-    time = time + String(" Maní");
+    time = time + String(" Maní"); // TODO: handle acentos
   }
   else if (min15)
   {
@@ -207,6 +207,7 @@ void handleTimer()
 // Handle motor Logic
 void handleTemperature()
 {
+  // TODO: maybe refactor to avoid infinity
   // 100-150-190 but 30-40-50 for debugging
   int tempLimit = min12 ? 30 : min15 ? 40
                            : min18   ? 50
