@@ -1,6 +1,6 @@
-# Cocoa Roaster
+# ESP32 Roaster Project
 
-A project to control a cocoa roaster with an esp32 (ESP32-DEVKIT-V1).
+A project to control a peanut, coffee & cocoa roaster with an esp32 (ESP32-DEVKIT-V1).
 The project uses PlatformIO to write and load the esp32 code, using the following directory structure:
 
 - The [**src**](/src) folder contains the [main.cpp](/src/main.cpp) file, which is the file with the code to be uploaded to esp32.
@@ -15,21 +15,23 @@ written in **lib_deps** inside the [platformio.ini](platformio.ini) file.
 
 The sensors consist of a thermometer (type K thermocouple) and a humidity sensor (DHT11).
 
-- When the temperature reaches 190ºC it feeds a relay that controls the first motor,
-and also starts a timer that can be 12, 15 or 18 minutes depending on the state of a 3 state switch.
+- When the temperature reaches 100ºC, 150ºC or 190ºC (depending on a 3 state switch) it feeds a relay that controls the first motor,
+and also starts a timer that can be 12, 15 or 18 minutes depending on the state of the same 3 state switch.
     - the first motor can only be stopped manually.
-    - the first state of the switch sets a 12m timer.
-    - the second state of the switch sets a 15m timer.
-    - the third state of the switch sets an 18m timer.
+    - the first state of the switch sets a 12m timer, when 100ºC and displays "Mani" (peanut).
+    - the second state of the switch sets a 15m timer, when 150ºC and displays "Cafe" (coffee).
+    - the third state of the switch sets an 18m timer, when 190ºC and displays "Cacao" (cocoa).
     - the default state of the switch does not set a timer.
 
-- When the timer stops, a buzzer starts making noise and also feeds another relay that controls the second motor.
-    - the buzzer can only be stopped by switching to the default state (turning off all states)
-    - the second motor can only be stopped manually.
+- When the timer stops, a buzzer starts making noise and also feeds another relay that controls the second & third motor.
+    - the buzzer can only be stopped by switching to the off state (turning off all states).
+    - the second & third motor can only be stopped manually.
+    
+- There will also be two buttons, one for decreasing the timer -1min and the other for incresing the timer +1min. 
   
-## Timer Logic
+## Timer Logic (OLD)
 
-The switch must be adjusted before the temperature reaches 190ºC. At that point, there are a couple of rules:
+The switch must be adjusted before the temperature reaches its limit. At that point, there are a couple of rules:
 
 1. If a timer is started and then changed to a higher time, the resulting time is: newTime - runningTime
   
