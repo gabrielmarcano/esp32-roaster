@@ -1,38 +1,66 @@
+@import "toggle.css";
+@import "timer.css";
+
 html {
   font-family: Arial, Helvetica, sans-serif; 
   display: inline-block; 
   text-align: center;
 }
-h1, h2 {
+
+body {  
+  margin: 0;
+  background-color: #d8f7e1;
+}
+
+h1 {
   font-size: 1.8rem; 
   color: white;
 }
-p { 
+
+h2 { 
   font-size: 1.4rem;
+  font-weight: bold;
+  color: #034078;
 }
+
+h3 {
+  margin: 0;
+  padding-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #959fa4;
+}
+
 .topnav { 
   overflow: hidden; 
-  background-color: #102152;
+  background-color: #3abc5c;
 }
-body {  
-  margin: 0;
+
+#controls, #timer {
+  display: grid;
+  place-items: center;
+  margin: 0.5rem 0;
 }
-.content { 
-  padding: 5%;
+
+.control-group {
+  margin-bottom: 1rem;
 }
+
 .card-grid { 
+  padding: 5%;
   max-width: 1200px; 
   margin: 0 auto; 
   display: grid; 
   grid-gap: 2rem; 
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
 }
+
 .card { 
   background-color: white; 
   box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
 }
-.card-title { 
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #034078
+
+@media (max-width: 400px) {
+ .card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ } 
 }
