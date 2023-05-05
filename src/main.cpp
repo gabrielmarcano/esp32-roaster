@@ -165,7 +165,7 @@ void handleTimer()
 {
   if (timerCount != 0 && timerIsOn)
   {
-    if (counter >= 1)
+    if (counter >= 0)
     {
       int minutes = floor(counter / 60);
       int remainingSeconds = counter - minutes * 60;
@@ -176,12 +176,12 @@ void handleTimer()
       counter--;
     }
 
-    if (counter < 1)
+    if (counter < 0)
     {
-      lcd.setCursor(0, 0);
-      lcd.print("00:00");
       timerIsOn = false;
       timerResponseIsActive = true;
+
+      // Print the title again
       lcd.setCursor(0, 0);
       lcd.print(mainTitle);
     }
