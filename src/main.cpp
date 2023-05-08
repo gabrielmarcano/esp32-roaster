@@ -24,7 +24,7 @@
 
 AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
-JSONVar readings;                   // Json Variable to Hold Sensor Readings
+JSONVar readings;                   // JSON Variable to Hold Sensor Readings
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // addr, width (16), height(2) -> 16x2 LCD
 
@@ -33,7 +33,7 @@ MAX6675 thermocouple(5, 23, 19); // SCK, CS, SO
 
 int temperature, humidity;
 
-const char *mainTitle = "Tostador       ";
+const char *mainTitle = "Tostador" + "                ";
 
 int timerCount, counter;
 bool timerIsOn = false;
@@ -204,7 +204,7 @@ void handleTimer()
   }
 }
 
-// Handle motor Logic
+// Handle actions depending on the temperature
 void handleTemperature()
 {
   // TODO: maybe refactor to avoid infinity
