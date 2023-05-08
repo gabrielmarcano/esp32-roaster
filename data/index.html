@@ -4,14 +4,14 @@
 <head>
   <title>Tostador de Cacao</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="icon" type="image/png" href="favicon.ico">
-  <link rel="manifest" href="/site.webmanifest">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
-    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <link rel="manifest" href="site.webmanifest">
   <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="timer.css">
+  <link rel="stylesheet" type="text/css" href="toggle.css">
   <script src="gauges.min.js"></script>
 </head>
 
@@ -51,24 +51,15 @@
     <article class="card">
       <h2>Temporizador</h2>
       <section id="timer">
-        <div class="clock-wrap">
-          <div class="clock pro-0">
-            <span class="count">00:00</span>
-          </div>
-        </div>
-        <script>
-          time = 3
-          setInterval(() => {
-            time >= 0 ? document.querySelector(".count").innerText = time : ''
-            console.log("interval", time)
-            time--
-          }, 1000)
-        </script>
+        <article role="timer" class="clock-wrap">
+          <section class="clock">
+            <time class="count">00:00</time>
+          </section>
+        </article>
       </section>
     </article>
   </main>
   <script src="events.js"></script>
-  <script src="timer.js"></script>
 </body>
 
 </html>
