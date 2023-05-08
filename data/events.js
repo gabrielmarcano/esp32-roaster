@@ -13,7 +13,7 @@
  */
 
 // Get current sensor readings when the page loads
-window.addEventListener("load", getReadings);
+window.addEventListener("load", initialValues);
 
 // Create Temperature Gauge
 let gaugeTemp = new LinearGauge({
@@ -109,20 +109,13 @@ let gaugeHum = new RadialGauge({
 }).draw();
 
 // Function to get current readings on the webpage when it loads for the first time
-function getReadings() {
-  var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function () {
-    if (this.readyState == 4 && this.status == 200) {
-      var myObj = JSON.parse(this.responseText);
-      console.log(myObj);
-      var temp = myObj.temperature;
-      var hum = myObj.humidity;
-      gaugeTemp.value = temp;
-      gaugeHum.value = hum;
-    }
-  };
-  xhr.open("GET", "/readings", true);
-  xhr.send();
+function initialValues() {
+  fetch("/data")
+    .then((res) => res.json())
+    .then(({ readings }) => {
+      gaugeTemp.value = readings.temperature;
+      gaugeHum.value = readings.humidity;
+    });
 }
 
 if (!!window.EventSource) {
