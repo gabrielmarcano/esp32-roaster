@@ -25,6 +25,7 @@
 AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
 JSONVar readings;                   // JSON Variable to Hold Sensor Readings
+JSONVar timer;                      // JSON Variable to Hold Time Values
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // addr, width (16), height(2) -> 16x2 LCD
 
@@ -35,7 +36,9 @@ int temperature, humidity;
 
 const char *mainTitle = "Tostador" + "                ";
 
-int timerCount, counter;
+int timerCount,         // Used to count the number of timers that have run
+    counter,            // Used to count (decrease) from totalTimeInSeconds to 0
+    totalTimeInSeconds; // Used to hold the total number of seconds to run
 bool timerIsOn = false;
 bool timerResponseIsActive = false;
 int min12, min15, min18;
@@ -57,6 +60,16 @@ String getSensorReadings()
   readings["temperature"] = String(temperature);
   readings["humidity"] = String(humidity);
   String jsonString = JSON.stringify(readings);
+  return jsonString;
+}
+
+// Get Time Values and return JSON object
+String getTimeValues()
+{
+  // JSON
+  timer["total"] = String(totalTimeInSeconds);
+  timer["time"] = String(counter);
+  String jsonString = JSON.stringify(timer);
   return jsonString;
 }
 
@@ -109,9 +122,12 @@ void initServer()
   server.serveStatic("/", SPIFFS, "/");
 
   // Request for the latest sensor readings
-  server.on("/readings", HTTP_GET, [](AsyncWebServerRequest *request)
+  server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    String json = getSensorReadings();
+    JSONVar data;
+    data["timer"] = getTimeValues();
+    data["readings"] = getSensorReadings();
+    String json = JSON.stringify(data);
     request->send(200, "application/json", json);
     json = String(); });
 
@@ -228,9 +244,10 @@ void handleTemperature()
     if (thereIsAMinuteSwitch)
     {
       // 12-15-18 but 0.3 for debugging
-      counter = min12 ? 0.3 * 60 : min15 ? 0.3 * 60
-                               : min18   ? 0.3 * 60
-                                         : 0;
+      totalTimeInSeconds = min12 ? 0.3 * 60 : min15 ? 0.3 * 60
+                                          : min18   ? 0.3 * 60
+                                                    : 0;
+      counter = totalTimeInSeconds;
       timerCount++;
       timerIsOn = true;
     }
@@ -266,9 +283,10 @@ void loop()
   min15 = digitalRead(MINUTES_15);
   min18 = digitalRead(MINUTES_18);
 
-  // Send Events to the client with the Sensor Readings Every 4 seconds
+  // Send Events to the client with the Sensor Readings
   events.send("ping", NULL, millis());
-  events.send(getSensorReadings().c_str(), "new_readings", millis());
+  events.send(getSensorReadings().c_str(), "readings", millis());
+  events.send(getTimeValues().c_str(), "timer", millis());
 
   // DEBUG TIME
   Serial.println("Timer data:");
