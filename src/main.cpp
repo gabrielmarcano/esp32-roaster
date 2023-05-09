@@ -34,11 +34,11 @@ MAX6675 thermocouple(5, 23, 19); // SCK, CS, SO
 
 int temperature, humidity;
 
-const char *mainTitle = "Tostador" + "                ";
+const char *mainTitle = "Tostador                ";
 
-int timerCount,         // Used to count the number of timers that have run
-    counter,            // Used to count (decrease) from totalTimeInSeconds to 0
-    totalTimeInSeconds; // Used to hold the total number of seconds to run
+int timerCount;         // Used to count the number of timers that have run
+int counter;            // Used to count (decrease) from totalTimeInSeconds to 0
+int totalTimeInSeconds; // Used to hold the total number of seconds to run
 bool timerIsOn = false;
 bool timerResponseIsActive = false;
 int min12, min15, min18;
@@ -59,8 +59,8 @@ String getSensorReadings()
   // JSON
   readings["temperature"] = String(temperature);
   readings["humidity"] = String(humidity);
-  String jsonString = JSON.stringify(readings);
-  return jsonString;
+  String json = JSON.stringify(readings);
+  return json;
 }
 
 // Get Time Values and return JSON object
@@ -69,8 +69,8 @@ String getTimeValues()
   // JSON
   timer["total"] = String(totalTimeInSeconds);
   timer["time"] = String(counter);
-  String jsonString = JSON.stringify(timer);
-  return jsonString;
+  String json = JSON.stringify(timer);
+  return json;
 }
 
 // Initialize SPIFFS
@@ -179,7 +179,7 @@ void handleBuzzer()
 // Handle all timer logic with the 3-state switch
 void handleTimer()
 {
-  if (timerCount != 0 && timerIsOn)
+  if (timerCount > 0 && timerIsOn)
   {
     if (counter >= 0)
     {
