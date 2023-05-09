@@ -5,18 +5,8 @@
  * @property {number} humidity Humidity value as a percentage (0 - 100)
  */
 
-/**
- * Timer type config
- * @typedef {Object} Timer
- * @property {number} total Number of the clock total time in seconds
- * @property {number} time Number of seconds remaining in the clock
- */
-
-// Get current sensor readings when the page loads
-window.addEventListener("load", initialValues);
-
-// Create Temperature Gauge
-let temperatureGauge = new LinearGauge({
+// Create Temperature Gauge Object
+const temperatureGauge = new LinearGauge({
   renderTo: "gauge-temperature",
   width: 120,
   height: 400,
@@ -70,8 +60,8 @@ let temperatureGauge = new LinearGauge({
   barWidth: 12,
 }).draw();
 
-// Create Humidity Gauge
-let humidityGauge = new RadialGauge({
+// Create Humidity Gauge Object
+const humidityGauge = new RadialGauge({
   renderTo: "gauge-humidity",
   width: 300,
   height: 300,
@@ -108,13 +98,51 @@ let humidityGauge = new RadialGauge({
   animationRule: "linear",
 }).draw();
 
+/**
+ * Timer type config
+ * @typedef {Object} Timer
+ * @property {number} total Number of the clock total time in seconds
+ * @property {number} time Number of seconds remaining in the clock
+ */
+
+// Get clock elements
+const clock = document.querySelector(".clock");
+const count = document.querySelector(".count");
+
+// Set time-related variables
+let total;
+let time;
+
+/**
+ * Switches States type config
+ * @typedef {Object} States
+ * @property {boolean} switch1 The state of the first switch (motor 1)
+ * @property {boolean} switch2 The state of the second switch (motor 2)
+ * @property {boolean} switch3 The state of the third switch (motor 3)
+ */
+
+// Get switches elements
+const switch1 = document.querySelector("#switch1");
+const switch2 = document.querySelector("#switch2");
+const switch3 = document.querySelector("#switch3");
+
+// Get current sensor readings when the page loads
+window.addEventListener("load", initialValues);
+
 // Function to get current readings on the webpage when it loads for the first time
 function initialValues() {
   fetch("/data")
     .then((res) => res.json())
-    .then(({ readings }) => {
+    .then(({ readings, timer, states }) => {
       temperatureGauge.value = readings.temperature;
       humidityGauge.value = readings.humidity;
+
+      total = timer.total;
+      time = timer.time <= 0 ? 0 : timer.time;
+
+      switch1.checked = states.switch1;
+      switch2.checked = states.switch2;
+      switch3.checked = states.switch3;
     });
 }
 
@@ -160,13 +188,9 @@ if (!!window.EventSource) {
     let timer = JSON.parse(e.data);
     console.log("timer", timer);
 
-    // elements
-    let clock = document.querySelector(".clock");
-    let count = document.querySelector(".count");
-
-    // values
-    let total = timer.total;
-    let time = timer.time <= 0 ? 0 : timer.time;
+    // update time values
+    total = timer.total;
+    time = timer.time <= 0 ? 0 : timer.time;
 
     // update circular progress bar
     clock.style.background = `conic-gradient(#db3e6c, ${
@@ -180,5 +204,19 @@ if (!!window.EventSource) {
     count.textContent = `${minutes < 10 ? "0" : ""}${minutes}:${
       seconds < 10 ? "0" : ""
     }${seconds}`;
+  });
+
+  // Switches states event handler
+  source.addEventListener("switches", function (e) {
+    /**
+     * An object holding all switches states
+     * @type {States}
+     */
+    let states = JSON.parse(e.data);
+    console.log("switches", states);
+
+    switch1.checked = states.switch1;
+    switch2.checked = states.switch2;
+    switch3.checked = states.switch3;
   });
 }
