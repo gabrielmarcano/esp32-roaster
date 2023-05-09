@@ -156,7 +156,7 @@ window.addEventListener("load", () => {
 });
 
 if (!!window.EventSource) {
-  // or http://localhost:3000/events when sse-local-server is on
+  // let source = new EventSource("http://localhost:3000/events"); // use this when sse-local-server is on
   let source = new EventSource("/events");
 
   // Start event listener
@@ -173,7 +173,7 @@ if (!!window.EventSource) {
 
   // Message handler
   source.addEventListener("message", function (e) {
-    console.log("message", e.data);
+    console.log("\nmessage\n", e.data);
   });
 
   // Readings / Gauges event handler
