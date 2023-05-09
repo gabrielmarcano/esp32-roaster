@@ -1,9 +1,28 @@
+// TYPES
+
 /**
  * Readings type config
  * @typedef {Object} Readings
  * @property {number} temperature Temperature value as an integer
  * @property {number} humidity Humidity value as a percentage (0 - 100)
  */
+
+/**
+ * Timer type config
+ * @typedef {Object} Timer
+ * @property {number} total Number of the clock total time in seconds
+ * @property {number} time Number of seconds remaining in the clock
+ */
+
+/**
+ * Switches States type config
+ * @typedef {Object} States
+ * @property {boolean} switch1 The state of the first switch (motor 1)
+ * @property {boolean} switch2 The state of the second switch (motor 2)
+ * @property {boolean} switch3 The state of the third switch (motor 3)
+ */
+
+// ELEMENTS & OBJECTS
 
 // Create Temperature Gauge Object
 const temperatureGauge = new LinearGauge({
@@ -98,13 +117,6 @@ const humidityGauge = new RadialGauge({
   animationRule: "linear",
 }).draw();
 
-/**
- * Timer type config
- * @typedef {Object} Timer
- * @property {number} total Number of the clock total time in seconds
- * @property {number} time Number of seconds remaining in the clock
- */
-
 // Get clock elements
 const clock = document.querySelector(".clock");
 const count = document.querySelector(".count");
@@ -113,24 +125,15 @@ const count = document.querySelector(".count");
 let total;
 let time;
 
-/**
- * Switches States type config
- * @typedef {Object} States
- * @property {boolean} switch1 The state of the first switch (motor 1)
- * @property {boolean} switch2 The state of the second switch (motor 2)
- * @property {boolean} switch3 The state of the third switch (motor 3)
- */
-
 // Get switches elements
 const switch1 = document.querySelector("#switch1");
 const switch2 = document.querySelector("#switch2");
 const switch3 = document.querySelector("#switch3");
 
-// Get current sensor readings when the page loads
-window.addEventListener("load", initialValues);
+// EVENTS
 
-// Function to get current readings on the webpage when it loads for the first time
-function initialValues() {
+// Get current sensor readings when the page loads
+window.addEventListener("load", () => {
   fetch("/data")
     .then((res) => res.json())
     .then(({ readings, timer, states }) => {
@@ -144,7 +147,7 @@ function initialValues() {
       switch2.checked = states.switch2;
       switch3.checked = states.switch3;
     });
-}
+});
 
 if (!!window.EventSource) {
   let source = new EventSource("/events");
