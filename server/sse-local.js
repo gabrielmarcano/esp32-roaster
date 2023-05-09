@@ -47,6 +47,10 @@ function serializeEvent(event, data) {
   return `event: ${event}\ndata: ${jsonString}\n\n`;
 }
 
+// timer logic
+let server_total = 10;
+let server_time = server_total;
+
 app.get("/events", (request, response) => {
   const headers = {
     "Content-Type": "text/event-stream",
@@ -67,10 +71,13 @@ app.get("/events", (request, response) => {
 
     response.write(
       serializeEvent("timer", {
-        total: 120,
-        time: 59,
+        total: server_total,
+        time: server_time,
       })
     );
+
+    // decrease time or reset
+    server_time = server_time <= 0 ? server_total : (server_time -= 1);
 
     response.write(
       serializeEvent("switches", {
