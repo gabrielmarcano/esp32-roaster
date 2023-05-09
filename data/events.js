@@ -16,7 +16,7 @@
 window.addEventListener("load", initialValues);
 
 // Create Temperature Gauge
-let gaugeTemp = new LinearGauge({
+let temperatureGauge = new LinearGauge({
   renderTo: "gauge-temperature",
   width: 120,
   height: 400,
@@ -71,7 +71,7 @@ let gaugeTemp = new LinearGauge({
 }).draw();
 
 // Create Humidity Gauge
-let gaugeHum = new RadialGauge({
+let humidityGauge = new RadialGauge({
   renderTo: "gauge-humidity",
   width: 300,
   height: 300,
@@ -113,8 +113,8 @@ function initialValues() {
   fetch("/data")
     .then((res) => res.json())
     .then(({ readings }) => {
-      gaugeTemp.value = readings.temperature;
-      gaugeHum.value = readings.humidity;
+      temperatureGauge.value = readings.temperature;
+      humidityGauge.value = readings.humidity;
     });
 }
 
@@ -122,83 +122,63 @@ if (!!window.EventSource) {
   let source = new EventSource("/events");
 
   // Start event listener
-  source.addEventListener(
-    "open",
-    function (e) {
-      console.log("Events Connected");
-    },
-    false
-  );
+  source.addEventListener("open", function (e) {
+    console.log("Events Connected");
+  });
 
   // Stop event listener
-  source.addEventListener(
-    "error",
-    function (e) {
-      if (e.target.readyState != EventSource.OPEN) {
-        console.log("Events Disconnected");
-      }
-    },
-    false
-  );
+  source.addEventListener("error", function (e) {
+    if (e.target.readyState != EventSource.OPEN) {
+      console.log("Events Disconnected");
+    }
+  });
 
   // Message handler
-  source.addEventListener(
-    "message",
-    function (e) {
-      console.log("message", e.data);
-    },
-    false
-  );
+  source.addEventListener("message", function (e) {
+    console.log("message", e.data);
+  });
 
   // Readings / Gauges event handler
-  source.addEventListener(
-    "readings",
-    function (e) {
-      /**
-       * An object holding the temperature & humidity values
-       * @type {Readings}
-       */
-      let readings = JSON.parse(e.data);
-      console.log("readings", readings);
+  source.addEventListener("readings", function (e) {
+    /**
+     * An object holding the temperature & humidity values
+     * @type {Readings}
+     */
+    let readings = JSON.parse(e.data);
+    console.log("readings", readings);
 
-      gaugeTemp.value = readings.temperature;
-      gaugeHum.value = readings.humidity;
-    },
-    false
-  );
+    temperatureGauge.value = readings.temperature;
+    humidityGauge.value = readings.humidity;
+  });
 
   // Timer event handler
-  source.addEventListener(
-    "timer",
-    function (e) {
-      /**
-       * An object holding all time-related data
-       * @type {Timer}
-       */
-      let timer = JSON.parse(e.data);
-      console.log("timer", timer);
+  source.addEventListener("timer", function (e) {
+    /**
+     * An object holding all time-related data
+     * @type {Timer}
+     */
+    let timer = JSON.parse(e.data);
+    console.log("timer", timer);
 
-      // elements
-      let clock = document.querySelector(".clock");
-      let count = document.querySelector(".count");
+    // elements
+    let clock = document.querySelector(".clock");
+    let count = document.querySelector(".count");
 
-      // values
-      let total = timer.total;
-      let time = timer.time <= 0 ? 0 : timer.time;
+    // values
+    let total = timer.total;
+    let time = timer.time <= 0 ? 0 : timer.time;
 
-      // update circular progress bar
-      clock.style.background = `conic-gradient(#db3e6c, ${
-        (time * 360) / total
-      }deg, #feeff4 0deg)`;
+    // update circular progress bar
+    clock.style.background = `conic-gradient(#db3e6c, ${
+      (time * 360) / total
+    }deg, #feeff4 0deg)`;
 
-      // format clock
-      let minutes = Math.floor(time / 60);
-      let seconds = time - minutes * 60;
+    // format clock
+    let minutes = Math.floor(time / 60);
+    let seconds = time - minutes * 60;
 
-      count.textContent = `${minutes < 10 ? "0" : ""}${minutes}:${
-        seconds < 10 ? "0" : ""
-      }${seconds}`;
-    },
-    false
-  );
+    count.textContent = `${minutes < 10 ? "0" : ""}${minutes}:${
+      seconds < 10 ? "0" : ""
+    }${seconds}`;
+  });
 }
