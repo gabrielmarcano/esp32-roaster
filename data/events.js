@@ -184,7 +184,12 @@ if (!!window.EventSource) {
 
       // values
       let total = timer.total;
-      let time = timer.time;
+      let time = timer.time <= 0 ? 0 : timer.time;
+
+      // update circular progress bar
+      clock.style.background = `conic-gradient(#db3e6c, ${
+        (time * 360) / total
+      }deg, #feeff4 0deg)`;
 
       // format clock
       let minutes = Math.floor(time / 60);
@@ -193,15 +198,6 @@ if (!!window.EventSource) {
       count.textContent = `${minutes < 10 ? "0" : ""}${minutes}:${
         seconds < 10 ? "0" : ""
       }${seconds}`;
-
-      // update circular progress bar
-      clock.style.background = `conic-gradient(#db3e6c, ${
-        (time * 360) / total
-      }deg, #feeff4 0deg)`;
-
-      if (time <= 0) {
-        time = 0;
-      }
     },
     false
   );
