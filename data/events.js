@@ -24,6 +24,12 @@
 
 // ELEMENTS & OBJECTS
 
+/**
+ * Used to only update the reading values once every 2 reading events,
+ * due to gauges bugging because of a fast render update.
+ */
+let delay = true;
+
 // Create Temperature Gauge Object
 const temperatureGauge = new LinearGauge({
   renderTo: "gauge-temperature",
@@ -150,6 +156,7 @@ window.addEventListener("load", () => {
 });
 
 if (!!window.EventSource) {
+  // or http://localhost:3000/events when sse-local-server is on
   let source = new EventSource("/events");
 
   // Start event listener
@@ -171,15 +178,21 @@ if (!!window.EventSource) {
 
   // Readings / Gauges event handler
   source.addEventListener("readings", function (e) {
-    /**
-     * An object holding the temperature & humidity values
-     * @type {Readings}
-     */
-    let readings = JSON.parse(e.data);
-    console.log("readings", readings);
+    if (!delay) {
+      /**
+       * An object holding the temperature & humidity values
+       * @type {Readings}
+       */
+      let readings = JSON.parse(e.data);
+      console.log("readings", readings);
 
-    temperatureGauge.value = readings.temperature;
-    humidityGauge.value = readings.humidity;
+      temperatureGauge.value = readings.temperature;
+      humidityGauge.value = readings.humidity;
+
+      delay = !delay;
+    } else {
+      delay = !delay;
+    }
   });
 
   // Timer event handler
