@@ -10,7 +10,7 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-#include <dht11.h>
+#include "DHT.h"
 #include "max6675.h"
 
 #define DHT_PIN 18
@@ -30,7 +30,7 @@ JSONVar states;                     // JSON Variable to Hold Motor States Values
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // addr, width (16), height(2) -> 16x2 LCD
 
-dht11 DHT11;
+DHT dht(DHT_PIN, DHT22);
 MAX6675 thermocouple(5, 23, 19); // SCK, CS, SO
 
 int temperature, humidity;
@@ -48,9 +48,7 @@ int min12, min15, min18;
 String getSensorReadings()
 {
   // Update readings
-  DHT11.read(DHT_PIN);
-
-  humidity = DHT11.humidity;
+  humidity = (int)dht.readHumidity();
   temperature = (int)thermocouple.readCelsius();
 
   // LCD
@@ -270,6 +268,8 @@ void handleTemperature()
 void setup()
 {
   Serial.begin(115200);
+
+  dht.begin();
 
   pinMode(MOTOR1_PIN, OUTPUT);
   pinMode(MOTOR2_PIN, OUTPUT);
