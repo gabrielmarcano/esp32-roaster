@@ -18,9 +18,9 @@
 #define MOTOR2_PIN 26
 #define MOTOR3_PIN 27
 #define BUZZER_PIN 14
-#define MINUTES_12 36
-#define MINUTES_15 34
-#define MINUTES_18 35
+#define TIME_A 36
+#define TIME_B 34
+#define TIME_C 35
 
 AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
@@ -42,7 +42,7 @@ int counter;            // Used to count (decrease) from totalTimeInSeconds to 0
 int totalTimeInSeconds; // Used to hold the total number of seconds to run
 bool timerIsOn = false;
 bool timerResponseIsActive = false;
-int min12, min15, min18;
+int isTimeA, isTimeB, isTimeC;
 
 // Get Sensor Readings and return JSON object
 String getSensorReadings()
@@ -72,6 +72,7 @@ String getTimeValues()
   return json;
 }
 
+// Get Motor States and return JSON object
 String getMotorStates()
 {
   states["motor1"] = !!digitalRead(MOTOR1_PIN);
@@ -161,15 +162,15 @@ String formatTime(int minutes, int seconds)
   time = (minutes < 10) ? time + String("0") + String(minutes) : time + String(minutes);
   time = time + String(":");
   time = (seconds < 10) ? time + String("0") + String(seconds) : time + String(seconds);
-  if (min12)
+  if (isTimeA)
   {
     time = time + String(" Maní"); // TODO: handle acentos
   }
-  else if (min15)
+  else if (isTimeB)
   {
     time = time + String(" Café");
   }
-  else if (min18)
+  else if (isTimeC)
   {
     time = time + String(" Cacao");
   }
@@ -213,7 +214,7 @@ void handleTimer()
   }
 
   // When switch is moved to OFF, then turn off the response
-  if (!min12 && !min15 && !min18)
+  if (!isTimeA && !isTimeB && !isTimeC)
   {
     timerResponseIsActive = false;
     noTone(BUZZER_PIN);
@@ -225,7 +226,6 @@ void handleTimer()
     handleBuzzer();
     digitalWrite(MOTOR2_PIN, HIGH);
     digitalWrite(MOTOR3_PIN, HIGH);
-    Serial.println("motor 2 y 3 are ON");
   }
 }
 
@@ -234,9 +234,9 @@ void handleTemperature()
 {
   // TODO: maybe refactor to avoid infinity
   // 100-150-190 but 30-40-50 for debugging
-  int tempLimit = min12 ? 30 : min15 ? 40
-                           : min18   ? 50
-                                     : INFINITY;
+  int tempLimit = isTimeA ? 30 : isTimeB ? 40
+                             : isTimeC   ? 50
+                                         : INFINITY;
 
   // TODO: Refactor to detect change from <tempLimit to >=tempLimit
   if (temperature >= tempLimit)
@@ -249,13 +249,13 @@ void handleTemperature()
   if (temperature >= tempLimit && !timerIsOn)
   {
     // Only set a timer if there is a switch selected
-    bool thereIsAMinuteSwitch = min12 || min15 || min18;
+    bool thereIsAMinuteSwitch = isTimeA || isTimeB || isTimeC;
     if (thereIsAMinuteSwitch)
     {
       // 12-15-18 but 0.3 for debugging
-      totalTimeInSeconds = min12 ? 0.3 * 60 : min15 ? 0.3 * 60
-                                          : min18   ? 0.3 * 60
-                                                    : 0;
+      totalTimeInSeconds = isTimeA ? 0.3 * 60 : isTimeB ? 0.3 * 60
+                                            : isTimeC   ? 0.3 * 60
+                                                        : 0;
       counter = totalTimeInSeconds;
       timerCount++;
       timerIsOn = true;
@@ -275,9 +275,9 @@ void setup()
   pinMode(MOTOR2_PIN, OUTPUT);
   pinMode(MOTOR3_PIN, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(MINUTES_12, INPUT);
-  pinMode(MINUTES_15, INPUT);
-  pinMode(MINUTES_18, INPUT);
+  pinMode(TIME_A, INPUT);
+  pinMode(TIME_B, INPUT);
+  pinMode(TIME_C, INPUT);
 
   initLCD(mainTitle);
   initWifi("GUEST", "88426259");
@@ -290,9 +290,9 @@ void setup()
 void loop()
 {
   // Get switch readings
-  min12 = digitalRead(MINUTES_12);
-  min15 = digitalRead(MINUTES_15);
-  min18 = digitalRead(MINUTES_18);
+  isTimeA = digitalRead(TIME_A);
+  isTimeB = digitalRead(TIME_B);
+  isTimeC = digitalRead(TIME_C);
 
   // Send Events to the client with the Sensor Readings
   events.send("ping", NULL, millis());
@@ -311,9 +311,9 @@ void loop()
 
   // DEBUG SWITCH
   Serial.println("Switch 1 2 3:");
-  Serial.println(min12);
-  Serial.println(min15);
-  Serial.println(min18);
+  Serial.println(isTimeA);
+  Serial.println(isTimeB);
+  Serial.println(isTimeC);
   Serial.println();
 
   delay(1000);
