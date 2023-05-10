@@ -137,6 +137,7 @@ void initServer()
     JSONVar data;
     data["timer"] = getTimeValues();
     data["readings"] = getSensorReadings();
+    data["states"] = getMotorStates();
     String json = JSON.stringify(data);
     request->send(200, "application/json", json);
     json = String(); });
