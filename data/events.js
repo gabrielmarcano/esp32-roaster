@@ -15,11 +15,11 @@
  */
 
 /**
- * Switches States type config
+ * Motors States type config
  * @typedef {Object} States
- * @property {boolean} switch1 The state of the first switch (motor 1)
- * @property {boolean} switch2 The state of the second switch (motor 2)
- * @property {boolean} switch3 The state of the third switch (motor 3)
+ * @property {boolean} motor1 The state of the first switch (motor 1)
+ * @property {boolean} motor2 The state of the second switch (motor 2)
+ * @property {boolean} motor3 The state of the third switch (motor 3)
  */
 
 // ELEMENTS & OBJECTS
@@ -157,7 +157,8 @@ window.addEventListener("load", () => {
 
 if (!!window.EventSource) {
   // let source = new EventSource("http://localhost:3000/events"); // use this when sse-local-server is on
-  let source = new EventSource("/events");
+  let source = new EventSource("http://192.168.0.177:3000/events"); // use this when sse-local-server is on
+  // let source = new EventSource("/events");
 
   // Start event listener
   source.addEventListener("open", function (e) {
@@ -223,16 +224,16 @@ if (!!window.EventSource) {
   });
 
   // Switches states event handler
-  source.addEventListener("switches", function (e) {
+  source.addEventListener("states", function (e) {
     /**
-     * An object holding all switches states
+     * An object holding all motor states
      * @type {States}
      */
     let states = JSON.parse(e.data);
-    console.log("switches", states);
+    console.log("states", states);
 
-    switch1.checked = states.switch1;
-    switch2.checked = states.switch2;
-    switch3.checked = states.switch3;
+    switch1.checked = states.motor1;
+    switch2.checked = states.motor2;
+    switch3.checked = states.motor3;
   });
 }

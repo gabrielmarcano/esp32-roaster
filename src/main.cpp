@@ -26,6 +26,7 @@ AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
 JSONVar readings;                   // JSON Variable to Hold Sensor Readings
 JSONVar timer;                      // JSON Variable to Hold Time Values
+JSONVar states;                     // JSON Variable to Hold Motor States Values
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // addr, width (16), height(2) -> 16x2 LCD
 
@@ -70,6 +71,16 @@ String getTimeValues()
   timer["total"] = String(totalTimeInSeconds);
   timer["time"] = String(counter);
   String json = JSON.stringify(timer);
+  return json;
+}
+
+String getMotorStates()
+{
+  states["motor1"] = !!digitalRead(MOTOR1_PIN);
+  states["motor2"] = !!digitalRead(MOTOR2_PIN);
+  states["motor3"] = !!digitalRead(MOTOR3_PIN);
+
+  String json = JSON.stringify(states);
   return json;
 }
 
@@ -287,6 +298,7 @@ void loop()
   events.send("ping", NULL, millis());
   events.send(getSensorReadings().c_str(), "readings", millis());
   events.send(getTimeValues().c_str(), "timer", millis());
+  events.send(getMotorStates().c_str(), "states", millis());
 
   // DEBUG TIME
   Serial.println("Timer data:");
@@ -322,3 +334,10 @@ if ((millis() - readingsLastTime) > readingsDelay)
 }
 
 */
+
+/**
+ * cacao 15 min
+ * cafe 15 min
+ * mani con concha 20-25 min
+ * mani sin concha 15-20 min
+ */

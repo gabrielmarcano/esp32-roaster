@@ -32,9 +32,9 @@ let clients = [];
 /**
  * Switches States type config
  * @typedef {Object} States
- * @property {boolean} switch1 The state of the first switch (motor 1)
- * @property {boolean} switch2 The state of the second switch (motor 2)
- * @property {boolean} switch3 The state of the third switch (motor 3)
+ * @property {boolean} motor1 The state of the first switch (motor 1)
+ * @property {boolean} motor2 The state of the second switch (motor 2)
+ * @property {boolean} motor3 The state of the third switch (motor 3)
  */
 
 /**
@@ -80,10 +80,10 @@ app.get("/events", (request, response) => {
     server_time = server_time <= 0 ? server_total : (server_time -= 1);
 
     response.write(
-      serializeEvent("switches", {
-        switch1: faker.datatype.boolean(),
-        switch2: faker.datatype.boolean(),
-        switch3: faker.datatype.boolean(),
+      serializeEvent("states", {
+        motor1: faker.datatype.boolean(),
+        motor2: faker.datatype.boolean(),
+        motor3: faker.datatype.boolean(),
       })
     );
   }, 1000);
