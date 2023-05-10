@@ -310,7 +310,7 @@ void loop()
   handleTimer();
 
   // DEBUG SWITCH
-  Serial.println("Switch 1 2 3:");
+  Serial.println("Switch A B C:");
   Serial.println(isTimeA);
   Serial.println(isTimeB);
   Serial.println(isTimeC);
