@@ -157,8 +157,8 @@ window.addEventListener("load", () => {
 
 if (!!window.EventSource) {
   // let source = new EventSource("http://localhost:3000/events"); // use this when sse-local-server is on
-  let source = new EventSource("http://192.168.0.177:3000/events"); // use this when sse-local-server is on
-  // let source = new EventSource("/events");
+  // let source = new EventSource("http://192.168.0.177:3000/events"); // use this when sse-local-server is on
+  let source = new EventSource("/events");
 
   // Start event listener
   source.addEventListener("open", function (e) {
