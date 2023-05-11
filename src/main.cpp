@@ -284,7 +284,7 @@ void handleTimerAndResponse()
 void handleTemperature()
 {
   int tempLimit = 0;
-  int timerDuration = 0;
+  float timerDuration = 0;
 
   if (isTimeA)
   {
