@@ -154,7 +154,6 @@ void initServer()
       {
         DynamicJsonBuffer jsonBuffer;
         JsonObject &root = jsonBuffer.parseObject((const char *)data);
-        JSONVar json;
 
         if (root.success())
         {
@@ -346,20 +345,23 @@ void loop()
   events.send(getTimeValues().c_str(), "timer", millis());
 
   // DEBUG TIME
-  Serial.println("Timer data:");
-  Serial.println(counter);
-  Serial.println(timerIsOn);
-  Serial.println(timerCount);
+  // Serial.println("Timer data:");
+  // Serial.println(counter);
+  // Serial.println(timerIsOn);
+  // Serial.println(timerCount);
 
   handleTemperature();
   handleTimer();
 
   // DEBUG SWITCH
-  Serial.println("Switch A B C:");
-  Serial.println(isTimeA);
-  Serial.println(isTimeB);
-  Serial.println(isTimeC);
-  Serial.println();
+  // Serial.println("Switch A B C:");
+  // Serial.println(isTimeA);
+  // Serial.println(isTimeB);
+  // Serial.println(isTimeC);
+  // Serial.println();
+
+  // Serial.println("Received data:");
+  // Serial.println(postData);
 
   delay(1000);
 }
