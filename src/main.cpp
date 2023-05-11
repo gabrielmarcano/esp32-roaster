@@ -31,19 +31,24 @@ JSONVar states;                     // JSON Variable to Hold Motor States Values
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // addr, width (16), height(2) -> 16x2 LCD
 
-DHT dht(DHT_PIN, DHT22);
+DHT dht(DHT_PIN, DHT22);         // PIN, MODEL
 MAX6675 thermocouple(5, 23, 19); // SCK, CS, SO
 
-int temperature, humidity;
+int temperature, humidity; // Hold the current value of the temperature & humidity
 
 const char *mainTitle = "Tostador                ";
 
-int timerCount;         // Used to count the number of timers that have run
-int counter;            // Used to count (decrease) from totalTimeInSeconds to 0
-int totalTimeInSeconds; // Used to hold the total number of seconds to run
-bool timerIsOn = false;
-bool timerResponseIsActive = false;
-int isTimeA, isTimeB, isTimeC;
+int timerCount;                     // Used to count the number of timers that have run
+int counter;                        // Used to count (decrease) from totalTimeInSeconds to 0
+int totalTimeInSeconds;             // Used to hold the total number of seconds to run
+bool timerIsOn = false;             // Represent an active timer
+bool timerResponseIsActive = false; // Represent a timer response (after a timer finishes) is active
+bool isTimeA, isTimeB, isTimeC;     // Represent the selection of a timer configuration for the 3-state switch. Only one is true
+
+bool motors23Activated = false; // Used to turn on the motors 2 & 3 only once every timer response
+
+const int MAX_TEMP_LIMIT = 1000;        // set a large value for max temperature limit
+const float TIMER_DURATION_DEBUG = 0.2; // set a default timer duration for debugging
 
 // Get Sensor Readings and return JSON object
 String getSensorReadings()
@@ -224,20 +229,18 @@ void handleBuzzer()
 }
 
 // Handle all timer logic with the 3-state switch
-void handleTimer()
+void handleTimerAndResponse()
 {
-  if (timerCount > 0 && timerIsOn)
+  if (timerCount > 0 && timerIsOn && counter >= 0)
   {
-    if (counter >= 0)
-    {
-      int minutes = floor(counter / 60);
-      int remainingSeconds = counter - minutes * 60;
 
-      lcd.setCursor(0, 0);
-      lcd.print(formatTime(minutes, remainingSeconds));
+    int minutes = floor(counter / 60);
+    int remainingSeconds = counter - minutes * 60;
 
-      counter--;
-    }
+    lcd.setCursor(0, 0);
+    lcd.print(formatTime(minutes, remainingSeconds));
+
+    counter--;
 
     if (counter < 0)
     {
@@ -254,6 +257,7 @@ void handleTimer()
   if (!isTimeA && !isTimeB && !isTimeC)
   {
     timerResponseIsActive = false;
+    motors23Activated = false;
     noTone(BUZZER_PIN);
   }
 
@@ -262,52 +266,62 @@ void handleTimer()
   {
     handleBuzzer();
 
-    // TODO: Send once
-    digitalWrite(MOTOR2_PIN, HIGH);
-    digitalWrite(MOTOR3_PIN, HIGH);
+    // Only turn the motors once every timer response
+    if (!motors23Activated)
+    {
+      digitalWrite(MOTOR2_PIN, HIGH);
+      digitalWrite(MOTOR3_PIN, HIGH);
 
-    // send new motor statuses to server
-    events.send(getMotorStates().c_str(), "states", millis());
+      motors23Activated = true;
+
+      // Send new motor statuses to server
+      events.send(getMotorStates().c_str(), "states", millis());
+    }
   }
 }
 
-// Handle actions depending on the temperature
+// // Handle actions depending on the temperature
 void handleTemperature()
 {
-  // TODO: maybe refactor to avoid infinity
-  // 100-150-190 but 30-40-50 for debugging
-  int tempLimit = isTimeA ? 30 : isTimeB ? 40
-                             : isTimeC   ? 50
-                                         : INFINITY;
+  int tempLimit = 0;
+  int timerDuration = 0;
 
-  // TODO: Refactor to detect change from <tempLimit to >=tempLimit
-  if (temperature >= tempLimit)
+  if (isTimeA)
+  {
+    tempLimit = 30;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 15;
+  }
+  else if (isTimeB)
+  {
+    tempLimit = 50;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 18;
+  }
+  else if (isTimeC)
+  {
+    tempLimit = 70;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 20;
+  }
+  else
+  {
+    tempLimit = MAX_TEMP_LIMIT;
+  }
+
+  // Check if temperature exceeds the limit and if it is rising & start timer if it's not already running
+  static int prevTemp = 0;
+  if (temperature >= tempLimit && temperature > prevTemp && !timerIsOn && timerDuration > 0)
   {
     digitalWrite(MOTOR1_PIN, HIGH);
 
-    // send new motor statuses to server
+    // Send new motor statuses to server
     events.send(getMotorStates().c_str(), "states", millis());
-  }
 
-  // -- No need to detect change since a minute switch can be set after the motor started
-  // -- If a timer is already running, don't set it again
-  if (temperature >= tempLimit && !timerIsOn)
-  {
-    // Only set a timer if there is a switch selected
-    bool thereIsAMinuteSwitch = isTimeA || isTimeB || isTimeC;
-    if (thereIsAMinuteSwitch)
-    {
-      // 12-15-18 but 0.3 for debugging
-      totalTimeInSeconds = isTimeA ? 0.3 * 60 : isTimeB ? 0.3 * 60
-                                            : isTimeC   ? 0.3 * 60
-                                                        : 0;
-      counter = totalTimeInSeconds;
-      timerCount++;
-      timerIsOn = true;
-    }
-
-    // TODO: add +1 minute or -1 minute with 2 extra inputs
+    // Start the timer
+    totalTimeInSeconds = timerDuration * 60;
+    counter = totalTimeInSeconds;
+    timerCount++;
+    timerIsOn = true;
   }
+  prevTemp = temperature;
 }
 
 void setup()
@@ -351,7 +365,7 @@ void loop()
   // Serial.println(timerCount);
 
   handleTemperature();
-  handleTimer();
+  handleTimerAndResponse();
 
   // DEBUG SWITCH
   // Serial.println("Switch A B C:");
