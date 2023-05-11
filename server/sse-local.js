@@ -51,6 +51,11 @@ function serializeEvent(event, data) {
 let server_total = 10;
 let server_time = server_total;
 
+// states
+let m1_state = false;
+let m2_state = false;
+let m3_state = false;
+
 app.get("/events", (request, response) => {
   const headers = {
     "Content-Type": "text/event-stream",
@@ -79,11 +84,19 @@ app.get("/events", (request, response) => {
     // decrease time or reset
     server_time = server_time <= 0 ? server_total : (server_time -= 1);
 
+    // response.write(
+    //   serializeEvent("states", {
+    //     motor1: faker.datatype.boolean(),
+    //     motor2: faker.datatype.boolean(),
+    //     motor3: faker.datatype.boolean(),
+    //   })
+    // );
+
     response.write(
       serializeEvent("states", {
-        motor1: faker.datatype.boolean(),
-        motor2: faker.datatype.boolean(),
-        motor3: faker.datatype.boolean(),
+        motor1: m1_state,
+        motor2: m2_state,
+        motor3: m3_state,
       })
     );
   }, 1000);
@@ -106,6 +119,24 @@ app.get("/events", (request, response) => {
 app.get("/status", (request, response) =>
   response.json({ clients: clients.length })
 );
+
+app.post("/motors", (request, response) => {
+  let data = request.body;
+
+  m1_state = data.motor1;
+  m2_state = data.motor2;
+  m3_state = data.motor3;
+
+  response.status(200);
+});
+
+app.get("/data", (request, response) => {
+  response.json({
+    timer: { total: 60, time: 30 },
+    readings: { temperature: 25, humidity: 66 },
+    states: { motor1: m1_state, motor2: m2_state, motor3: m3_state },
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`SSE service listening at http://localhost:${PORT}`);

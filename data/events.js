@@ -143,15 +143,19 @@ window.addEventListener("load", () => {
   fetch("/data")
     .then((res) => res.json())
     .then(({ readings, timer, states }) => {
+      readings = JSON.parse(readings);
+      timer = JSON.parse(timer);
+      states = JSON.parse(states);
+
       temperatureGauge.value = readings.temperature;
       humidityGauge.value = readings.humidity;
 
       total = timer.total;
       time = timer.time <= 0 ? 0 : timer.time;
 
-      switch1.checked = states.switch1;
-      switch2.checked = states.switch2;
-      switch3.checked = states.switch3;
+      switch1.checked = states.motor1;
+      switch2.checked = states.motor2;
+      switch3.checked = states.motor3;
     });
 });
 
@@ -237,3 +241,18 @@ if (!!window.EventSource) {
     switch3.checked = states.motor3;
   });
 }
+
+// handle update of motor status to the esp32
+document.querySelectorAll('[type="checkbox"]').forEach((sw) => {
+  sw.addEventListener("click", () => {
+    fetch("/motors", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        [`motor${sw.id.match(/[123]/g)[0]}`]: sw.checked,
+      }),
+    });
+  });
+});

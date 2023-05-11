@@ -4,6 +4,7 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <Arduino_JSON.h>
+#include "ArduinoJson.h"
 
 #include "SPIFFS.h"
 
@@ -134,13 +135,49 @@ void initServer()
   // Request for the latest sensor readings
   server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-    JSONVar data;
-    data["timer"] = getTimeValues();
-    data["readings"] = getSensorReadings();
-    data["states"] = getMotorStates();
-    String json = JSON.stringify(data);
-    request->send(200, "application/json", json);
-    json = String(); });
+              JSONVar data;
+
+              data["timer"] = getTimeValues();
+              data["readings"] = getSensorReadings();
+              data["states"] = getMotorStates();
+
+              String json = JSON.stringify(data);
+
+              request->send(200, "application/json", json);
+
+              json = String(); });
+
+  // Update the latest status of the motors states
+  server.on(
+      "/motors", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL,
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+      {
+        DynamicJsonBuffer jsonBuffer;
+        JsonObject &root = jsonBuffer.parseObject((const char *)data);
+        JSONVar json;
+
+        if (root.success())
+        {
+          if (root.containsKey("motor1"))
+          {
+            digitalWrite(MOTOR1_PIN, root["motor1"].as<bool>());
+          }
+          if (root.containsKey("motor2"))
+          {
+            digitalWrite(MOTOR2_PIN, root["motor2"].as<bool>());
+          }
+          if (root.containsKey("motor3"))
+          {
+            digitalWrite(MOTOR3_PIN, root["motor3"].as<bool>());
+          }
+          events.send(getMotorStates().c_str(), "states", millis());
+          request->send(200, "text/plain", "ok");
+        }
+        else
+        {
+          request->send(404, "text/plain", "error");
+        }
+      });
 
   events.onConnect([](AsyncEventSourceClient *client)
                    {
@@ -225,8 +262,13 @@ void handleTimer()
   if (timerResponseIsActive)
   {
     handleBuzzer();
+
+    // TODO: Send once
     digitalWrite(MOTOR2_PIN, HIGH);
     digitalWrite(MOTOR3_PIN, HIGH);
+
+    // send new motor statuses to server
+    events.send(getMotorStates().c_str(), "states", millis());
   }
 }
 
@@ -243,6 +285,9 @@ void handleTemperature()
   if (temperature >= tempLimit)
   {
     digitalWrite(MOTOR1_PIN, HIGH);
+
+    // send new motor statuses to server
+    events.send(getMotorStates().c_str(), "states", millis());
   }
 
   // -- No need to detect change since a minute switch can be set after the motor started
@@ -299,7 +344,6 @@ void loop()
   events.send("ping", NULL, millis());
   events.send(getSensorReadings().c_str(), "readings", millis());
   events.send(getTimeValues().c_str(), "timer", millis());
-  events.send(getMotorStates().c_str(), "states", millis());
 
   // DEBUG TIME
   Serial.println("Timer data:");
