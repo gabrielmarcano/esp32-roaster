@@ -143,10 +143,6 @@ window.addEventListener("load", () => {
   fetch("/data")
     .then((res) => res.json())
     .then(({ readings, timer, states }) => {
-      readings = JSON.parse(readings);
-      timer = JSON.parse(timer);
-      states = JSON.parse(states);
-
       temperatureGauge.value = readings.temperature;
       humidityGauge.value = readings.humidity;
 

@@ -3,8 +3,7 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Arduino_JSON.h>
-#include "ArduinoJson.h"
+#include <ArduinoJson.h>
 
 #include "SPIFFS.h"
 
@@ -25,9 +24,11 @@
 
 AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
-JSONVar readings;                   // JSON Variable to Hold Sensor Readings
-JSONVar timer;                      // JSON Variable to Hold Time Values
-JSONVar states;                     // JSON Variable to Hold Motor States Values
+
+// As a thumb rule, 32 bytes for every key/value pair inside the json
+StaticJsonDocument<64> readings; // JSON Variable to Hold Sensor Readings
+StaticJsonDocument<64> timer;    // JSON Variable to Hold Time Values
+StaticJsonDocument<128> states;  // JSON Variable to Hold Motor States Values
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // addr, width (16), height(2) -> 16x2 LCD
 
@@ -64,7 +65,10 @@ String getSensorReadings()
   // JSON
   readings["temperature"] = String(temperature);
   readings["humidity"] = String(humidity);
-  String json = JSON.stringify(readings);
+
+  String json;
+  serializeJson(readings, json);
+
   return json;
 }
 
@@ -74,7 +78,10 @@ String getTimeValues()
   // JSON
   timer["total"] = String(totalTimeInSeconds);
   timer["time"] = String(counter);
-  String json = JSON.stringify(timer);
+
+  String json;
+  serializeJson(timer, json);
+
   return json;
 }
 
@@ -85,7 +92,9 @@ String getMotorStates()
   states["motor2"] = !!digitalRead(MOTOR2_PIN);
   states["motor3"] = !!digitalRead(MOTOR3_PIN);
 
-  String json = JSON.stringify(states);
+  String json;
+  serializeJson(states, json);
+
   return json;
 }
 
@@ -140,13 +149,25 @@ void initServer()
   // Request for the latest sensor readings
   server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request)
             {
-              JSONVar data;
+              DynamicJsonDocument data(256);
 
-              data["timer"] = getTimeValues();
-              data["readings"] = getSensorReadings();
-              data["states"] = getMotorStates();
+              // Create the objects
+              StaticJsonDocument<64> timerValues;
+              StaticJsonDocument<64> readingsValues;
+              StaticJsonDocument<128> statesValues;
 
-              String json = JSON.stringify(data);
+              // Get values into objects
+              deserializeJson(timerValues, getTimeValues());
+              deserializeJson(readingsValues, getSensorReadings());
+              deserializeJson(statesValues, getMotorStates());
+              
+              // Add objects to the DynamicJsonDocument
+              data["timer"] = timerValues.as<JsonVariant>();
+              data["readings"] = readingsValues.as<JsonVariant>();
+              data["states"] = statesValues.as<JsonVariant>();
+              
+              String json;
+              serializeJson(data, json);
 
               request->send(200, "application/json", json);
 
@@ -157,29 +178,29 @@ void initServer()
       "/motors", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL,
       [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
       {
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject &root = jsonBuffer.parseObject((const char *)data);
+        StaticJsonDocument<32> response;
+        DeserializationError error = deserializeJson(response, (const char *)data, len);
 
-        if (root.success())
+        if (!error)
         {
-          if (root.containsKey("motor1"))
+          if (response.containsKey("motor1"))
           {
-            digitalWrite(MOTOR1_PIN, root["motor1"].as<bool>());
+            digitalWrite(MOTOR1_PIN, response["motor1"].as<bool>());
           }
-          if (root.containsKey("motor2"))
+          if (response.containsKey("motor2"))
           {
-            digitalWrite(MOTOR2_PIN, root["motor2"].as<bool>());
+            digitalWrite(MOTOR2_PIN, response["motor2"].as<bool>());
           }
-          if (root.containsKey("motor3"))
+          if (response.containsKey("motor3"))
           {
-            digitalWrite(MOTOR3_PIN, root["motor3"].as<bool>());
+            digitalWrite(MOTOR3_PIN, response["motor3"].as<bool>());
           }
           events.send(getMotorStates().c_str(), "states", millis());
           request->send(200, "text/plain", "ok");
         }
         else
         {
-          request->send(404, "text/plain", "error");
+          request->send(404, "text/plain", error.c_str());
         }
       });
 
