@@ -13,6 +13,11 @@
 #include "DHT.h"
 #include "max6675.h"
 
+#define LCD_SDA 21
+#define LCD_SCL 22
+#define MAX_SCK 5
+#define MAX_CS 23
+#define MAX_SO 19
 #define DHT_PIN 18
 #define MOTOR1_PIN 2 // 25, but internal LED (2) for debugging
 #define MOTOR2_PIN 26
@@ -32,8 +37,8 @@ StaticJsonDocument<128> states;  // JSON Variable to Hold Motor States Values
 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // addr, width (16), height(2) -> 16x2 LCD
 
-DHT dht(DHT_PIN, DHT22);         // PIN, MODEL
-MAX6675 thermocouple(5, 23, 19); // SCK, CS, SO
+DHT dht(DHT_PIN, DHT22);                       // PIN, MODEL
+MAX6675 thermocouple(MAX_SCK, MAX_CS, MAX_SO); // SCK, CS, SO
 
 int temperature, humidity; // Hold the current value of the temperature & humidity
 
@@ -131,7 +136,7 @@ void initWifi(const char *ssid, const char *password)
 // Initialize LCD
 void initLCD(const char *title)
 {
-  Wire.begin(21, 22);
+  Wire.begin(LCD_SDA, LCD_SCL);
   lcd.init();
   lcd.backlight();
   lcd.print(title);
