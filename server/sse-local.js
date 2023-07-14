@@ -82,15 +82,11 @@ app.get("/events", (request, response) => {
     );
 
     // decrease time or reset
-    server_time = server_time <= 0 ? server_total : (server_time -= 1);
-
-    // response.write(
-    //   serializeEvent("states", {
-    //     motor1: faker.datatype.boolean(),
-    //     motor2: faker.datatype.boolean(),
-    //     motor3: faker.datatype.boolean(),
-    //   })
-    // );
+    if (server_time > 0) {
+      server_time -= 1;
+    } else {
+      server_time = server_total;
+    }
 
     response.write(
       serializeEvent("states", {
