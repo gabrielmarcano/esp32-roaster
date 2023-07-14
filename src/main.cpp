@@ -329,7 +329,7 @@ void handleTemperature()
 
   // Check if temperature exceeds the limit and if it is rising & start timer if it's not already running
   static int prevTemp = 0;
-  if (temperature >= tempLimit && temperature > prevTemp && !timerIsOn && timerDuration > 0)
+  if (temperature >= tempLimit && temperature > prevTemp && prevTemp < tempLimit && !timerIsOn && timerDuration > 0)
   {
     digitalWrite(MOTOR1_PIN, HIGH);
 
@@ -343,6 +343,20 @@ void handleTemperature()
     timerIsOn = true;
   }
   prevTemp = temperature;
+}
+
+// TODO: add +1 minute or -1 minute with 2 extra inputs
+// Handle interrupt response
+void handleInterrupt()
+{
+  // if +1 minute button
+  totalTimeInSeconds = totalTimeInSeconds + 60;
+  counter = counter + 60;
+  timerIsOn = true;
+
+  // if -1 minute button
+  totalTimeInSeconds = totalTimeInSeconds - 60;
+  counter = counter - 60;
 }
 
 void setup()
