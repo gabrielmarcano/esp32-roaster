@@ -301,7 +301,7 @@ void handleTimerAndResponse()
   }
 }
 
-// // Handle actions depending on the temperature
+// Handle actions depending on the temperature
 void handleTemperature()
 {
   int tempLimit = 0;
@@ -394,9 +394,6 @@ void loop()
   // Serial.println(isTimeB);
   // Serial.println(isTimeC);
   // Serial.println();
-
-  // Serial.println("Received data:");
-  // Serial.println(postData);
 
   delay(1000);
 }
