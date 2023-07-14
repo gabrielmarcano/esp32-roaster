@@ -155,7 +155,7 @@ window.addEventListener("load", () => {
     });
 });
 
-if (!!window.EventSource) {
+if (window.EventSource) {
   // let source = new EventSource("http://localhost:3000/events"); // use this when sse-local-server is on
   // let source = new EventSource("http://192.168.0.177:3000/events"); // use this when sse-local-server is on
   let source = new EventSource("/events");
@@ -167,7 +167,7 @@ if (!!window.EventSource) {
 
   // Stop event listener
   source.addEventListener("error", function (e) {
-    if (e.target.readyState != EventSource.OPEN) {
+    if (e.target.readyState !== EventSource.OPEN) {
       console.log("Events Disconnected");
     }
   });
