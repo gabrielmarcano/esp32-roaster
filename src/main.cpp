@@ -236,11 +236,11 @@ String formatTime(int minutes, int seconds)
   time = (seconds < 10) ? time + String("0") + String(seconds) : time + String(seconds);
   if (isTimeA)
   {
-    time = time + String(" Maní"); // TODO: handle acentos
+    time = time + String(" Mani"); // TODO: handle acentos
   }
   else if (isTimeB)
   {
-    time = time + String(" Café");
+    time = time + String(" Cafe");
   }
   else if (isTimeC)
   {
