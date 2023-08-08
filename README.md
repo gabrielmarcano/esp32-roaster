@@ -1,53 +1,102 @@
-# ESP32 Roaster Project
+<h1 align="center">ESP32 Roaster Project</h1>
+<p align="center">
+  A project to control a peanut, coffee & cocoa roaster with an ESP32
+</p>
+<p align="center">
+  <a href="https://github.com/sindresorhus/awesome">
+    <img alt="Awesome" src="https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg">
+  </a>
+  <a href="https://github.com/gabrielmarcano/esp32-roaster/releases">
+	<img alt="GitHub release" src="https://img.shields.io/github/v/release/gabrielmarcano/esp32-roaster">
+  </a>
+  <a href="https://platformio.org/">
+	<img alt="Powered by PlatformIO" src="https://img.shields.io/badge/powered_by-PlatformIO-orange">
+  </a>
+</p>
 
-A project to control a peanut, coffee & cocoa roaster with an esp32 (ESP32-DEVKIT-V1).
-The project uses PlatformIO to write and load the esp32 code, using the following directory structure:
+## Contents
 
-- The [**src**](/src) folder contains the [main.cpp](/src/main.cpp) file, which is the file with the code to be uploaded to esp32.
+- [Summary](#summary)
+- [Project structure](#project-structure)
+- [Hardware](#hardware)
+- [Software](#software)
+- [Wiring](#wiring)
 
-- The folder [**data**](/data) contains all static files (html, css, js and png/ico)
-which are written directly to SPI flash file storage (SPIFFS).
+## Summary
 
-- The folder [**lib**](/lib) has all the additional libraries. Core libraries are installed via PlatformIO or
-written in **lib_deps** inside the [platformio.ini](platformio.ini) file.
+All logic depends on the data given by the **Thermocouple** & **DHT22** sensors, and the selected mode in the **4 Position Rotary Switch**. It's intention is to control 3 motors, which will turn on or off based on the temperature that it reaches. 
 
-## Logic behind
+When the temperature reaches 100ºC, 150ºC or 190ºC (depending on the mode) it feeds a relay that controls the first motor,
+and also starts a timer that can be 12, 15 or 18 minutes which also depends on the mode.
 
-The sensors consist of a thermometer (type K thermocouple) and a humidity sensor (DHT11).
+When the timer stops, a buzzer starts making noise and also feeds the other 2 relays that controls the second & third motor.
 
-- When the temperature reaches 100ºC, 150ºC or 190ºC (depending on a 3 state switch) it feeds a relay that controls the first motor,
-and also starts a timer that can be 12, 15 or 18 minutes depending on the state of the same 3 state switch.
-    - the first motor can only be stopped manually.
-    - the first state of the switch sets a 12m timer, when 100ºC and displays "Mani" (peanut).
-    - the second state of the switch sets a 15m timer, when 150ºC and displays "Cafe" (coffee).
-    - the third state of the switch sets an 18m timer, when 190ºC and displays "Cacao" (cocoa).
-    - the default state of the switch does not set a timer.
+There will also be two buttons, one will add +1min to the time (and start the timer if it's stopped), and the other will substract -1min to the time.
 
-- When the timer stops, a buzzer starts making noise and also feeds another relay that controls the second & third motor.
-    - the buzzer can only be stopped by switching to the off state (turning off all states).
-    - the second & third motor can only be stopped manually.
-    
-- There will also be two buttons, one for decreasing the timer -1min and the other for incresing the timer +1min. 
-  
-## Timer Logic (OLD)
+> Motors can only be stopped manually by either the security button or through the web interface.
 
-The switch must be adjusted before the temperature reaches its limit. At that point, there are a couple of rules:
+### Modes
 
-1. If a timer is started and then changed to a higher time, the resulting time is: newTime - runningTime
-  
-      ex. The timer is set to 18 min, has 9:45 running (8:15 left), and is changed to 12 min.
-      the result will be 12 - 9:45 = 2:15 remaining.
-    
-      - If the result is < 0, then the timer should be stopped.
-    
-        ex. The timer is set to 18 min and has 16:45 running (1:15 left) and is changed to 15 min.
-        the result will be 15 - 16:45 = -1:15 remaining.
-    
-2. If a timer is started and then changed to a lower time, the resulting time is: newTime - runningTime
- 
-      ex. The timer is set to 12 min and has 9:45 running (2:15 left) and is changed to 18 min.
-      the result will be 18 - 9:45 = 8:15 remaining.
-  
-## Display
+Position     | Name         | Temperature      | Time
+-------------|--------------|------------------|-----------
+1            | Peanut       | 100ºC            | 12m
+2            | Coffee       | 150ºC            | 15m
+3            | Cocoa        | 190ºC            | 18m
 
-All information from the sensors is passed to both an I²C LCD display and a web server.
+
+> The default state of the switch does not set a timer.
+
+## Project structure
+
+The project structure is as follows:
+
+Resource                         | Description
+-------------------------------- | ----------------------------------------------------------------------
+[src/](src)                      | The [main.cpp](/src/main.cpp) file with the code to be uploaded to esp32
+[data/](data)                    | Static files written directly to the SPI flash file storage (SPIFFS)
+[lib/](lib)                      | All additional libraries. Core libraries are installed via PlatformIO or written in **lib_deps** using the [platformio.ini](platformio.ini) file
+[platformio.ini](platformio.ini) | PlatformIO project configuration file
+[build/](build)                  | Release bin files
+[server/](server)                | [Express](https://expressjs.com/) server for debugging
+
+
+## Hardware
+
+- **ESP32-DEVKIT-V1**: ESP32 Microcontroller
+- **I²C 16x2 LCD Display**
+- **Type K thermocouple**: Thermoelectrical thermometer
+- **MAX6675**: Type K thermocouple digital converter
+- **DHT22**: Humidity sensor
+- **4 Position Rotary Switch**: Mode selector
+- **Passive Buzzer**
+- **Motor (x3)**
+- **Push button (x2)**: Time adder/substractor
+- **Relay (x3)**
+- **7805 / 7812**: Voltage regulators
+- **Capacitors**
+- **Resistors**
+
+## Software
+
+### Web server
+
+The ESP32 also act as a server for controlling the motor states, showing the temperature and humidity with gauges, and showing the remaining time in the timer. The server uses [SSE](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) to update the values on the web.
+
+The web interface can _read_ all values, and can only _write_ to the motor states values.
+
+OTA updates are available thanks to [ElegantOTA](https://github.com/ayushsharma82/ElegantOTA).
+
+Resource                         | Description
+-------------------------------- | ----------------------------------------------------------------------
+/events                          | Event Source with `readings`, `timer` & `states` events
+/data                            | **GET** - Request to update the temperature & humidity readings, timer remaining time and motors states on the web interface
+/motors                          | **POST** - Request to control the state of the motors throught the web interface
+/update                          | Firmware & Filesystem OTA updates
+
+### VPN
+
+The ESP32 is connected to a VPN using [Husarnet](https://github.com/husarnet/husarnet-esp32). With this, the web interface can be accessed remotely, and it also enables simple remote OTA updates.
+
+## Wiring
+
+> **TODO**: Upload circuit, PCB design, 3D design, Gerber files & ESP32 pinout
