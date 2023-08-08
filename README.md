@@ -24,7 +24,7 @@
 
 ## Summary
 
-All logic depends on the data given by the **Thermocouple** & **DHT22** sensors, and the selected mode in the **4 Position Rotary Switch**. It's intention is to control 3 motors, which will turn on or off based on the temperature that it reaches. 
+All logic depends on the data given by the **Thermocouple** & **DHT22** sensors, and the selected mode in the **4 Position Rotary Switch**. It's intention is to control 3 motors, which will turn on or off based on the temperature that it reaches.
 
 When the temperature reaches 100ºC, 150ºC or 190ºC (depending on the mode) it feeds a relay that controls the first motor,
 and also starts a timer that can be 12, 15 or 18 minutes which also depends on the mode.
@@ -37,12 +37,11 @@ There will also be two buttons, one will add +1min to the time (and start the ti
 
 ### Modes
 
-Position     | Name         | Temperature      | Time
--------------|--------------|------------------|-----------
-1            | Peanut       | 100ºC            | 12m
-2            | Coffee       | 150ºC            | 15m
-3            | Cocoa        | 190ºC            | 18m
-
+| Position | Name   | Temperature | Time |
+| -------- | ------ | ----------- | ---- |
+| 1        | Peanut | 100ºC       | 12m  |
+| 2        | Coffee | 150ºC       | 15m  |
+| 3        | Cocoa  | 190ºC       | 18m  |
 
 > The default state of the switch does not set a timer.
 
@@ -50,15 +49,25 @@ Position     | Name         | Temperature      | Time
 
 The project structure is as follows:
 
-Resource                         | Description
--------------------------------- | ----------------------------------------------------------------------
-[src/](src)                      | The [main.cpp](/src/main.cpp) file with the code to be uploaded to esp32
-[data/](data)                    | Static files written directly to the SPI flash file storage (SPIFFS)
-[lib/](lib)                      | All additional libraries. Core libraries are installed via PlatformIO or written in **lib_deps** using the [platformio.ini](platformio.ini) file
-[platformio.ini](platformio.ini) | PlatformIO project configuration file
-[build/](build)                  | Release bin files
-[server/](server)                | [Express](https://expressjs.com/) server for debugging
+| Resource                         | Description                                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [src/](src)                      | The [main.cpp](/src/main.cpp) file with the code to be uploaded to esp32                                                                         |
+| [data/](data)                    | Static files written directly to the SPI flash file storage (SPIFFS)                                                                             |
+| [lib/](lib)                      | All additional libraries. Core libraries are installed via PlatformIO or written in **lib_deps** using the [platformio.ini](platformio.ini) file |
+| [server/](server)                | [Express](https://expressjs.com/) server for debugging                                                                                           |
+| [platformio.ini](platformio.ini) | PlatformIO project configuration file                                                                                                            |
+| [env.h](src/env.h)               | Env vars file used to get the credentials for WiFi & VPN                                                                                         |
 
+### Envionment Variables
+
+Create a file called `env.h` inside the [src/](src) directory and include these env vars:
+
+```cpp
+#define WIFI_SSID "SSID"
+#define WIFI_PASSWORD "PASSWORD"
+#define HUSARNET_JOIN_CODE "XXXXXXXX"
+#define HUSARNET_HOSTNAME "DEVICE"
+```
 
 ## Hardware
 
@@ -86,12 +95,12 @@ The web interface can _read_ all values, and can only _write_ to the motor state
 
 OTA updates are available thanks to [ElegantOTA](https://github.com/ayushsharma82/ElegantOTA).
 
-Resource                         | Description
--------------------------------- | ----------------------------------------------------------------------
-/events                          | Event Source with `readings`, `timer` & `states` events
-/data                            | **GET** - Request to update the temperature & humidity readings, timer remaining time and motors states on the web interface
-/motors                          | **POST** - Request to control the state of the motors throught the web interface
-/update                          | Firmware & Filesystem OTA updates
+| Resource | Description                                                                                                                  |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| /events  | Event Source with `readings`, `timer` & `states` events                                                                      |
+| /data    | **GET** - Request to update the temperature & humidity readings, timer remaining time and motors states on the web interface |
+| /motors  | **POST** - Request to control the state of the motors throught the web interface                                             |
+| /update  | Firmware & Filesystem OTA updates                                                                                            |
 
 ### VPN
 

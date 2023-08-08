@@ -180,6 +180,10 @@ dist
 .gcc-flags.json
 .pio/*
 
+# Secrets
+
+src/env.h
+
 ### PlatformIO Release files ###
 #!.pio/build/
 #.pio/build/*

@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+// Get credentials
+#include <env.h>
+
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
@@ -383,7 +386,7 @@ void setup()
   pinMode(TIME_C, INPUT);
 
   initLCD(mainTitle);
-  initWifi("GUEST", "88426259");
+  initWifi(WIFI_SSID, WIFI_PASSWORD);
   initSPIFFS();
   initServer();
 
@@ -402,44 +405,8 @@ void loop()
   events.send(getSensorReadings().c_str(), "readings", millis());
   events.send(getTimeValues().c_str(), "timer", millis());
 
-  // DEBUG TIME
-  // Serial.println("Timer data:");
-  // Serial.println(counter);
-  // Serial.println(timerIsOn);
-  // Serial.println(timerCount);
-
   handleTemperature();
   handleTimerAndResponse();
 
-  // DEBUG SWITCH
-  // Serial.println("Switch A B C:");
-  // Serial.println(isTimeA);
-  // Serial.println(isTimeB);
-  // Serial.println(isTimeC);
-  // Serial.println();
-
   delay(1000);
 }
-
-/*
-
-MANUAL WAIT
-
-unsigned long readingsLastTime = 0;
-unsigned long readingsDelay = 1000;
-
-if ((millis() - readingsLastTime) > readingsDelay)
-{
-  // Things here will repeat every "readingsDelay" seconds
-
-  readingsLastTime = millis();
-}
-
-*/
-
-/**
- * cacao 15 min
- * cafe 15 min
- * mani con concha 20-25 min
- * mani sin concha 15-20 min
- */
