@@ -1,0 +1,4 @@
+#define WIFI_SSID "SSID"
+#define WIFI_PASSWORD "PASS"
+#define HUSARNET_JOIN_CODE "XXXXXXXXX"
+#define HUSARNET_HOSTNAME "esp32-roaster"
