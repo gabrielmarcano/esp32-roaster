@@ -26,7 +26,7 @@
 
 // WiFi credentials
 #define WIFI_SSID WSSID
-#define WIFI_PASS WPASS
+#define WIFI_PASSWORD WPASS
 
 // Husarnet credentials
 #define HUSARNET_JOIN_CODE HN_JOINCODE
