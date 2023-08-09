@@ -52,14 +52,14 @@ There will also be two buttons, one will add +1min to the time (and start the ti
 
 The project structure is as follows:
 
-| Resource                             | Description                                                                                                                                      |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [src/](src)                          | The [main.cpp](/src/main.cpp) file with the code to be uploaded to esp32                                                                         |
-| [data/](data)                        | Static files written directly to the SPI flash file storage (SPIFFS)                                                                             |
-| [lib/](lib)                          | All additional libraries. Core libraries are installed via PlatformIO or written in **lib_deps** using the [platformio.ini](platformio.ini) file |
-| [server/](server)                    | [Express](https://expressjs.com/) server for debugging                                                                                           |
-| [platformio.ini](platformio.ini)     | PlatformIO project configuration file                                                                                                            |
-| [env-template.h](src/env-template.h) | Env vars template file used to get the credentials for WiFi & VPN                                                                                |
+| Resource                                    | Description                                                                                                                                      |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [src/](src)                                 | The [main.cpp](/src/main.cpp) file with the code to be uploaded to esp32                                                                         |
+| [data/](data)                               | Static files written directly to the SPI flash file storage (SPIFFS)                                                                             |
+| [lib/](lib)                                 | All additional libraries. Core libraries are installed via PlatformIO or written in **lib_deps** using the [platformio.ini](platformio.ini) file |
+| [server/](server)                           | [Express](https://expressjs.com/) server for debugging                                                                                           |
+| [env&#x2011;template.h](src/env-template.h) | Environment variables template file used to get the credentials for WiFi & VPN                                                                   |
+| [platformio.ini](platformio.ini)            | PlatformIO project configuration file                                                                                                            |
 
 ### Envionment Variables
 

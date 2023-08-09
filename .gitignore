@@ -183,14 +183,6 @@ dist
 # Secrets
 src/env.h
 
-### PlatformIO Release files ###
-#!.pio/build/
-#.pio/build/*
-#!.pio/build/esp32doit-devkit-v1/
-#.pio/build/esp32doit-devkit-v1/*
-#!.pio/build/esp32doit-devkit-v1/firmware.bin
-#!.pio/build/esp32doit-devkit-v1/spiffs.bin
-
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
