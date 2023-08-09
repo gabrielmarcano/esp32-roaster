@@ -13,14 +13,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Load environment variables
-        run: |
-          mv src/env-template.h src/env.h
+      # - name: Load environment variables
+      #   run: |
+      #     mv src/env-template.h src/env.h
 
       - name: Installing platformio
         run: pip3 install -U platformio
 
       - name: Building a firmware
         run: |
+          export SSID=${{ secrets.WIFI_SSID }}
+          export PASS=${{ secrets.WIFI_PASS }}
+          export JOINCODE=${{ secrets.HUSARNET_JOINCODE }}
+          export HOSTNAME=${{ secrets.HUSARNET_HOSTNAME }}
           pio lib install
           pio run

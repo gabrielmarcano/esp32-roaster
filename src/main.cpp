@@ -1,8 +1,5 @@
 #include <Arduino.h>
 
-// Get credentials
-#include <env.h>
-
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
@@ -16,6 +13,28 @@
 
 #include "DHT.h"
 #include "max6675.h"
+
+#if __has_include("env.h")
+
+// For local development (rename env-template.h and type your WiFi and
+// Husarnet credentials there)
+#include <env.h>
+
+#else
+
+// For GitHub Actions OTA deployment
+
+// WiFi credentials
+#define WIFI_SSID WSSID
+#define WIFI_PASS WPASS
+
+// Husarnet credentials
+#define HUSARNET_JOIN_CODE HN_JOINCODE
+#define HUSARNET_HOSTNAME HN_HOSTNAME
+
+#endif
+
+// #include <env.h>
 
 #define LCD_SDA 21
 #define LCD_SCL 22
