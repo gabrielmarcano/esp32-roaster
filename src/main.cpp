@@ -22,7 +22,7 @@
 
 #else
 
-// For GitHub Actions OTA deployment
+// For GitHub Actions
 
 // WiFi credentials
 #define WIFI_SSID WSSID
@@ -173,6 +173,12 @@ void initServer()
             { request->send(SPIFFS, "/index.html", "text/html"); });
 
   server.serveStatic("/", SPIFFS, "/");
+
+  // HTTP API for remote reset
+  server.on("/reset", HTTP_POST, [](AsyncWebServerRequest *request)
+            {
+    request->send(200, "text/plain", "Reseting ESP32...");
+    ESP.restart(); });
 
   // Request for the latest sensor readings
   server.on("/data", HTTP_GET, [](AsyncWebServerRequest *request)

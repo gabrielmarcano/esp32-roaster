@@ -4,7 +4,10 @@
 </p>
 <p align="center">
   <a href="https://github.com/gabrielmarcano/esp32-roaster/blob/master/.github/workflows/build.yml">
-    <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/gabrielmarcano/esp32-roaster/build.yml">
+    <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/gabrielmarcano/esp32-roaster/build.yml?logo=github">
+  </a>
+  <a href="https://github.com/gabrielmarcano/esp32-roaster/blob/master/.github/workflows/ota-update.yml">
+    <img alt="OTA Update" src="https://img.shields.io/github/actions/workflow/status/gabrielmarcano/esp32-roaster/ota-update.yml?logo=github&label=OTA">
   </a>
   <a href="https://github.com/gabrielmarcano/esp32-roaster/releases">
 	<img alt="GitHub release" src="https://img.shields.io/github/v/release/gabrielmarcano/esp32-roaster?filter=*alpha&logo=github">
@@ -49,18 +52,18 @@ There will also be two buttons, one will add +1min to the time (and start the ti
 
 The project structure is as follows:
 
-| Resource                         | Description                                                                                                                                      |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [src/](src)                      | The [main.cpp](/src/main.cpp) file with the code to be uploaded to esp32                                                                         |
-| [data/](data)                    | Static files written directly to the SPI flash file storage (SPIFFS)                                                                             |
-| [lib/](lib)                      | All additional libraries. Core libraries are installed via PlatformIO or written in **lib_deps** using the [platformio.ini](platformio.ini) file |
-| [server/](server)                | [Express](https://expressjs.com/) server for debugging                                                                                           |
-| [platformio.ini](platformio.ini) | PlatformIO project configuration file                                                                                                            |
-| [env.h](src/env.h)               | Env vars file used to get the credentials for WiFi & VPN                                                                                         |
+| Resource                             | Description                                                                                                                                      |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [src/](src)                          | The [main.cpp](/src/main.cpp) file with the code to be uploaded to esp32                                                                         |
+| [data/](data)                        | Static files written directly to the SPI flash file storage (SPIFFS)                                                                             |
+| [lib/](lib)                          | All additional libraries. Core libraries are installed via PlatformIO or written in **lib_deps** using the [platformio.ini](platformio.ini) file |
+| [server/](server)                    | [Express](https://expressjs.com/) server for debugging                                                                                           |
+| [platformio.ini](platformio.ini)     | PlatformIO project configuration file                                                                                                            |
+| [env-template.h](src/env-template.h) | Env vars template file used to get the credentials for WiFi & VPN                                                                                |
 
 ### Envionment Variables
 
-Use env vars to store your credentials.
+Use env vars to store your credentials and build the firmware locally.
 
 1 - Run the command: `mv src/env-template.h src/env.h`
 
@@ -105,8 +108,11 @@ OTA updates are available thanks to [ElegantOTA](https://github.com/ayushsharma8
 | /data    | **GET** - Request to update the temperature & humidity readings, timer remaining time and motors states on the web interface |
 | /motors  | **POST** - Request to control the state of the motors throught the web interface                                             |
 | /update  | Firmware & Filesystem OTA updates                                                                                            |
+| /reset   | Perform a remote software reset of the ESP32                                                                                 |
 
 ### VPN
+
+> TODO: This is not implemented yet
 
 The ESP32 is connected to a VPN using [Husarnet](https://github.com/husarnet/husarnet-esp32). With this, the web interface can be accessed remotely, and it also enables simple remote OTA updates.
 

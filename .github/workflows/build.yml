@@ -13,10 +13,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # - name: Load environment variables
-      #   run: |
-      #     mv src/env-template.h src/env.h
-
       - name: Installing platformio
         run: pip3 install -U platformio
 
