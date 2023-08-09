@@ -181,7 +181,6 @@ dist
 .pio/*
 
 # Secrets
-
 src/env.h
 
 ### PlatformIO Release files ###
