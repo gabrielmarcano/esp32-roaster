@@ -3,8 +3,8 @@
   A project to control a peanut, coffee & cocoa roaster with an ESP32
 </p>
 <p align="center">
-  <a href="https://github.com/sindresorhus/awesome">
-    <img alt="Awesome" src="https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg">
+  <a href="https://github.com/gabrielmarcano/esp32-roaster/blob/master/.github/workflows/build.yml">
+    <img alt="Build" src="https://img.shields.io/github/actions/workflow/status/gabrielmarcano/esp32-roaster/build.yml">
   </a>
   <a href="https://github.com/gabrielmarcano/esp32-roaster/releases">
 	<img alt="GitHub release" src="https://img.shields.io/github/v/release/gabrielmarcano/esp32-roaster?filter=*alpha&logo=github">
