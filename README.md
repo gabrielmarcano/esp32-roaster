@@ -60,7 +60,11 @@ The project structure is as follows:
 
 ### Envionment Variables
 
-Create a file called `env.h` inside the [src/](src) directory and include these env vars:
+Use env vars to store your credentials.
+
+1 - Run the command: `mv src/env-template.h src/env.h`
+
+2 - Edit the values
 
 ```cpp
 #define WIFI_SSID "SSID"
