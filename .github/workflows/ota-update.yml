@@ -28,7 +28,7 @@ jobs:
       - name: Building a firmware for ESP32
         run: |
           export SSID=${{ secrets.WIFI_SSID }}
-          export PASS=${{ secrets.WIFI_PASS }}
+          export PASS=${{ secrets.WIFI_PASSWORD }}
           export JOINCODE=${{ secrets.HUSARNET_JOIN_CODE }}
           export HOSTNAME=${{ secrets.HUSARNET_HOSTNAME }}
           pio lib install
