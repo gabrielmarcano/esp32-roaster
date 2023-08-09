@@ -20,7 +20,7 @@ jobs:
       - name: Installing platformio
         run: pip3 install -U platformio
 
-      - name: Building firmware
+      - name: Building a firmware
         run: |
           export SSID=${{ secrets.WIFI_SSID }}
           export PASS=${{ secrets.WIFI_PASSWORD }}

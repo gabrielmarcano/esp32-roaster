@@ -25,12 +25,12 @@
 // For GitHub Actions OTA deployment
 
 // WiFi credentials
-const char *WIFI_SSID = WSSID;
-const char *WIFI_PASSWORD = WPASS;
+#define WIFI_SSID WSSID
+#define WIFI_PASSWORD WPASS
 
 // Husarnet credentials
-const char *HUSARNET_JOIN_CODE = HN_JOINCODE;
-const char *HUSARNET_HOSTNAME = HN_HOSTNAME;
+#define HUSARNET_JOIN_CODE HN_JOINCODE
+#define HUSARNET_HOSTNAME HN_HOSTNAME
 
 #endif
 
