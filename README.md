@@ -107,8 +107,8 @@ OTA updates are available thanks to [ElegantOTA](https://github.com/ayushsharma8
 | /events  | Event Source with `readings`, `timer` & `states` events                                                                      |
 | /data    | **GET** - Request to update the temperature & humidity readings, timer remaining time and motors states on the web interface |
 | /motors  | **POST** - Request to control the state of the motors throught the web interface                                             |
+| /reset   | **POST** - Request to perform a remote software reset of the ESP32                                                           |
 | /update  | Firmware & Filesystem OTA updates                                                                                            |
-| /reset   | Perform a remote software reset of the ESP32                                                                                 |
 
 ### VPN
 
