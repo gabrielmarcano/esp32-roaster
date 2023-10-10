@@ -42,13 +42,15 @@
 #define MAX_CS 23
 #define MAX_SO 19
 #define DHT_PIN 18
-#define MOTOR1_PIN 2 // 25, but internal LED (2) for debugging
+#define MOTOR1_PIN 25 // 25, but internal LED (2) for debugging
 #define MOTOR2_PIN 26
 #define MOTOR3_PIN 27
 #define BUZZER_PIN 14
 #define TIME_A 36
 #define TIME_B 34
 #define TIME_C 35
+#define TIME_INCREMENT 12
+#define TIME_DECREMENT 13
 
 AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
@@ -346,18 +348,21 @@ void handleTemperature()
 
   if (isTimeA)
   {
-    tempLimit = 30;
-    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 15;
+    // Mani
+    tempLimit = 180;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 20;
   }
   else if (isTimeB)
   {
-    tempLimit = 50;
-    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 18;
+    // Cacao
+    tempLimit = 140;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 33;
   }
   else if (isTimeC)
   {
-    tempLimit = 70;
-    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 20;
+    // Cafe
+    tempLimit = 170;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 12;
   }
   else
   {
