@@ -28,10 +28,6 @@
 #define WIFI_SSID WSSID
 #define WIFI_PASSWORD WPASS
 
-// Husarnet credentials
-#define HUSARNET_JOIN_CODE HN_JOINCODE
-#define HUSARNET_HOSTNAME HN_HOSTNAME
-
 #endif
 
 // #include <env.h>
@@ -49,8 +45,8 @@
 #define TIME_A 36
 #define TIME_B 34
 #define TIME_C 35
-#define TIME_INCREMENT 12
-#define TIME_DECREMENT 13
+#define TIME_ADDER 12
+#define TIME_REDUCER 13
 
 AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
@@ -387,16 +383,17 @@ void handleTemperature()
   prevTemp = temperature;
 }
 
-// TODO: add +1 minute or -1 minute with 2 extra inputs
-// Handle interrupt response
-void handleInterrupt()
+// Handle adding 1 minute with interrupt
+void IRAM_ATTR handleAddTime()
 {
-  // if +1 minute button
   totalTimeInSeconds = totalTimeInSeconds + 60;
   counter = counter + 60;
   timerIsOn = true;
+}
 
-  // if -1 minute button
+// Handle reducing 1 minute with interrupt
+void IRAM_ATTR handleReduceTime()
+{
   totalTimeInSeconds = totalTimeInSeconds - 60;
   counter = counter - 60;
 }
@@ -414,6 +411,10 @@ void setup()
   pinMode(TIME_A, INPUT);
   pinMode(TIME_B, INPUT);
   pinMode(TIME_C, INPUT);
+  pinMode(TIME_ADDER, INPUT);
+  pinMode(TIME_REDUCER, INPUT);
+  attachInterrupt(TIME_ADDER, handleAddTime, CHANGE);
+  attachInterrupt(TIME_REDUCER, handleReduceTime, CHANGE);
 
   initLCD(mainTitle);
   initWifi(WIFI_SSID, WIFI_PASSWORD);
