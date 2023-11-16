@@ -88,6 +88,7 @@ String getSensorReadings()
   lcd.printf("T: %dC H: %d%%   ", temperature, humidity);
 
   // JSON
+  readings.clear();
   readings["temperature"] = String(temperature);
   readings["humidity"] = String(humidity);
 
@@ -101,6 +102,7 @@ String getSensorReadings()
 String getTimeValues()
 {
   // JSON
+  timer.clear();
   timer["total"] = String(totalTimeInSeconds);
   timer["time"] = String(counter);
 
@@ -113,6 +115,7 @@ String getTimeValues()
 // Get Motor States and return JSON object
 String getMotorStates()
 {
+  states.clear();
   states["motor1"] = !!digitalRead(MOTOR1_PIN);
   states["motor2"] = !!digitalRead(MOTOR2_PIN);
   states["motor3"] = !!digitalRead(MOTOR3_PIN);
