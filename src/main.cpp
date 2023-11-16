@@ -30,8 +30,6 @@
 
 #endif
 
-// #include <env.h>
-
 #define LCD_SDA 21
 #define LCD_SCL 22
 #define MAX_SCK 5
@@ -71,11 +69,12 @@ int totalTimeInSeconds;             // Used to hold the total number of seconds 
 bool timerIsOn = false;             // Represent an active timer
 bool timerResponseIsActive = false; // Represent a timer response (after a timer finishes) is active
 bool isTimeA, isTimeB, isTimeC;     // Represent the selection of a timer configuration for the 3-state switch. Only one is true
+int lastMillis = 0;                 // Used to software dounce the push buttons for timer control
 
 bool motors23Activated = false; // Used to turn on the motors 2 & 3 only once every timer response
 
-const int MAX_TEMP_LIMIT = 1000;        // set a large value for max temperature limit
-const float TIMER_DURATION_DEBUG = 0.2; // set a default timer duration for debugging
+const int MAX_TEMP_LIMIT = 1000;      // Set a large value for max temperature limit
+const float TIMER_DURATION_DEBUG = 0; // Set a default timer duration for debugging. Set 0 for production
 
 // Get Sensor Readings and return JSON object
 String getSensorReadings()
@@ -297,16 +296,16 @@ void handleTimerAndResponse()
     lcd.print(formatTime(minutes, remainingSeconds));
 
     counter--;
+  }
 
-    if (counter < 0)
-    {
-      timerIsOn = false;
-      timerResponseIsActive = true;
+  if (counter < 0)
+  {
+    timerIsOn = false;
+    timerResponseIsActive = true;
 
-      // Print the title again
-      lcd.setCursor(0, 0);
-      lcd.print(mainTitle);
-    }
+    // Print the title again
+    lcd.setCursor(0, 0);
+    lcd.print(mainTitle);
   }
 
   // When switch is moved to OFF, then turn off the response
@@ -386,16 +385,24 @@ void handleTemperature()
 // Handle adding 1 minute with interrupt
 void IRAM_ATTR handleAddTime()
 {
-  totalTimeInSeconds = totalTimeInSeconds + 60;
-  counter = counter + 60;
-  timerIsOn = true;
+  if (millis() - lastMillis > 60)
+  { // Software debouncing button
+    totalTimeInSeconds = totalTimeInSeconds + 60;
+    counter = counter + 60;
+    timerIsOn = true;
+  }
+  lastMillis = millis();
 }
 
 // Handle reducing 1 minute with interrupt
 void IRAM_ATTR handleReduceTime()
 {
-  totalTimeInSeconds = totalTimeInSeconds - 60;
-  counter = counter - 60;
+  if (millis() - lastMillis > 60)
+  { // Software debouncing button
+    totalTimeInSeconds = totalTimeInSeconds - 60;
+    counter = counter - 60;
+  }
+  lastMillis = millis();
 }
 
 void setup()
@@ -413,8 +420,8 @@ void setup()
   pinMode(TIME_C, INPUT);
   pinMode(TIME_ADDER, INPUT);
   pinMode(TIME_REDUCER, INPUT);
-  attachInterrupt(TIME_ADDER, handleAddTime, CHANGE);
-  attachInterrupt(TIME_REDUCER, handleReduceTime, CHANGE);
+  attachInterrupt(TIME_ADDER, handleAddTime, FALLING);
+  attachInterrupt(TIME_REDUCER, handleReduceTime, FALLING);
 
   initLCD(mainTitle);
   initWifi(WIFI_SSID, WIFI_PASSWORD);
