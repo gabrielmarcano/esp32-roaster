@@ -28,13 +28,7 @@
 #define WIFI_SSID WSSID
 #define WIFI_PASSWORD WPASS
 
-// Husarnet credentials
-#define HUSARNET_JOIN_CODE HN_JOINCODE
-#define HUSARNET_HOSTNAME HN_HOSTNAME
-
 #endif
-
-// #include <env.h>
 
 #define LCD_SDA 21
 #define LCD_SCL 22
@@ -42,13 +36,15 @@
 #define MAX_CS 23
 #define MAX_SO 19
 #define DHT_PIN 18
-#define MOTOR1_PIN 2 // 25, but internal LED (2) for debugging
+#define MOTOR1_PIN 25 // 25, but internal LED (2) for debugging
 #define MOTOR2_PIN 26
 #define MOTOR3_PIN 27
 #define BUZZER_PIN 14
 #define TIME_A 36
 #define TIME_B 34
 #define TIME_C 35
+#define TIME_ADDER 12
+#define TIME_REDUCER 13
 
 AsyncWebServer server(80);          // Create AsyncWebServer object on port 80
 AsyncEventSource events("/events"); // Create an Event Source on /events
@@ -73,11 +69,12 @@ int totalTimeInSeconds;             // Used to hold the total number of seconds 
 bool timerIsOn = false;             // Represent an active timer
 bool timerResponseIsActive = false; // Represent a timer response (after a timer finishes) is active
 bool isTimeA, isTimeB, isTimeC;     // Represent the selection of a timer configuration for the 3-state switch. Only one is true
+int lastMillis = 0; // Used to software dounce the push buttons for timer control
 
 bool motors23Activated = false; // Used to turn on the motors 2 & 3 only once every timer response
 
-const int MAX_TEMP_LIMIT = 1000;        // set a large value for max temperature limit
-const float TIMER_DURATION_DEBUG = 0.2; // set a default timer duration for debugging
+const int MAX_TEMP_LIMIT = 1000;      // Set a large value for max temperature limit
+const float TIMER_DURATION_DEBUG = 0; // Set a default timer duration for debugging. Set 0 for production
 
 // Get Sensor Readings and return JSON object
 String getSensorReadings()
@@ -91,6 +88,7 @@ String getSensorReadings()
   lcd.printf("T: %dC H: %d%%   ", temperature, humidity);
 
   // JSON
+  readings.clear();
   readings["temperature"] = String(temperature);
   readings["humidity"] = String(humidity);
 
@@ -104,6 +102,7 @@ String getSensorReadings()
 String getTimeValues()
 {
   // JSON
+  timer.clear();
   timer["total"] = String(totalTimeInSeconds);
   timer["time"] = String(counter);
 
@@ -116,6 +115,7 @@ String getTimeValues()
 // Get Motor States and return JSON object
 String getMotorStates()
 {
+  states.clear();
   states["motor1"] = !!digitalRead(MOTOR1_PIN);
   states["motor2"] = !!digitalRead(MOTOR2_PIN);
   states["motor3"] = !!digitalRead(MOTOR3_PIN);
@@ -223,13 +223,64 @@ void initServer()
           }
           if (response.containsKey("motor2"))
           {
-            digitalWrite(MOTOR2_PIN, response["motor2"].as<bool>());
+            bool motor2state = response["motor2"].as<bool>();
+            digitalWrite(MOTOR2_PIN, motor2state);
+
+            // When motor2 or motor3 are manually turned off, then we reset the timerResponse so another timer can turn both motors on again
+            if (motor2state == false)
+            {
+              motors23Activated = false;
+              timerResponseIsActive = false;
+            }
           }
           if (response.containsKey("motor3"))
           {
-            digitalWrite(MOTOR3_PIN, response["motor3"].as<bool>());
+            bool motor3state = response["motor3"].as<bool>();
+            digitalWrite(MOTOR3_PIN, motor3state);
+
+            if (motor3state == false)
+            {
+              motors23Activated = false;
+              timerResponseIsActive = false;
+            }
           }
           events.send(getMotorStates().c_str(), "states", millis());
+          request->send(200, "text/plain", "ok");
+        }
+        else
+        {
+          request->send(404, "text/plain", error.c_str());
+        }
+      });
+
+  // Add or reduce 60sec and update the timer
+  server.on(
+      "/time", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL,
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+      {
+        StaticJsonDocument<64> response;
+        DeserializationError error = deserializeJson(response, (const char *)data, len);
+
+        if (!error)
+        {
+          if (response.containsKey("time") && response.containsKey("action"))
+          {
+            String action = response["action"].as<String>();
+            int time_in_seconds = response["time"].as<int>();
+
+            if (action == "add")
+            {
+              counter += time_in_seconds;
+              totalTimeInSeconds += time_in_seconds;
+              timerIsOn = true;
+            }
+            else if (action == "reduce")
+            {
+              counter -= time_in_seconds;
+            }
+          }
+
+          events.send(getTimeValues().c_str(), "timer", millis());
           request->send(200, "text/plain", "ok");
         }
         else
@@ -299,16 +350,18 @@ void handleTimerAndResponse()
     lcd.print(formatTime(minutes, remainingSeconds));
 
     counter--;
+  }
 
-    if (counter < 0)
-    {
-      timerIsOn = false;
-      timerResponseIsActive = true;
+  if (counter < 0)
+  {
+    timerIsOn = false;
+    timerResponseIsActive = true;
+    totalTimeInSeconds = 0;
+    counter = 0;
 
-      // Print the title again
-      lcd.setCursor(0, 0);
-      lcd.print(mainTitle);
-    }
+    // Print the title again
+    lcd.setCursor(0, 0);
+    lcd.print(mainTitle);
   }
 
   // When switch is moved to OFF, then turn off the response
@@ -346,18 +399,21 @@ void handleTemperature()
 
   if (isTimeA)
   {
-    tempLimit = 30;
-    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 15;
+    // Mani
+    tempLimit = 180;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 20;
   }
   else if (isTimeB)
   {
-    tempLimit = 50;
-    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 18;
+    // Cacao
+    tempLimit = 140;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 33;
   }
   else if (isTimeC)
   {
-    tempLimit = 70;
-    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 20;
+    // Cafe
+    tempLimit = 170;
+    timerDuration = TIMER_DURATION_DEBUG ? TIMER_DURATION_DEBUG : 12;
   }
   else
   {
@@ -382,18 +438,27 @@ void handleTemperature()
   prevTemp = temperature;
 }
 
-// TODO: add +1 minute or -1 minute with 2 extra inputs
-// Handle interrupt response
-void handleInterrupt()
+// Handle adding 1 minute with interrupt
+void IRAM_ATTR handleAddTime()
 {
-  // if +1 minute button
-  totalTimeInSeconds = totalTimeInSeconds + 60;
-  counter = counter + 60;
-  timerIsOn = true;
+  if (millis() - lastMillis > 60)
+  { // Software debouncing button
+    totalTimeInSeconds += 60;
+    counter += 60;
+    timerIsOn = true;
+  }
+  lastMillis = millis();
+}
 
-  // if -1 minute button
-  totalTimeInSeconds = totalTimeInSeconds - 60;
-  counter = counter - 60;
+// Handle reducing 1 minute with interrupt
+void IRAM_ATTR handleReduceTime()
+{
+  if (millis() - lastMillis > 60)
+  { // Software debouncing button
+    totalTimeInSeconds -= 60;
+    counter -= 60;
+  }
+  lastMillis = millis();
 }
 
 void setup()
@@ -409,6 +474,10 @@ void setup()
   pinMode(TIME_A, INPUT);
   pinMode(TIME_B, INPUT);
   pinMode(TIME_C, INPUT);
+  pinMode(TIME_ADDER, INPUT);
+  pinMode(TIME_REDUCER, INPUT);
+  attachInterrupt(TIME_ADDER, handleAddTime, FALLING);
+  attachInterrupt(TIME_REDUCER, handleReduceTime, FALLING);
 
   initLCD(mainTitle);
   initWifi(WIFI_SSID, WIFI_PASSWORD);

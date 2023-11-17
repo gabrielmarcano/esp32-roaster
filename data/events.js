@@ -241,6 +241,7 @@ if (window.EventSource) {
 // handle update of motor status to the esp32
 document.querySelectorAll('[type="checkbox"]').forEach((sw) => {
   sw.addEventListener("click", () => {
+    if (navigator.vibrate) window.navigator.vibrate(50);
     fetch("/motors", {
       method: "POST",
       headers: {
@@ -248,6 +249,25 @@ document.querySelectorAll('[type="checkbox"]').forEach((sw) => {
       },
       body: JSON.stringify({
         [`motor${sw.id.match(/[123]/g)[0]}`]: sw.checked,
+      }),
+    });
+  });
+});
+
+// handle timer adder
+document.querySelectorAll(".timer-button").forEach((timer_button) => {
+  timer_button.addEventListener("click", () => {
+    if (navigator.vibrate) window.navigator.vibrate(50);
+    fetch("/time", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        time: 60,
+        action: timer_button.ariaLabel.includes("reduce-time")
+          ? "reduce"
+          : "add",
       }),
     });
   });
