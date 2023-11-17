@@ -15,15 +15,9 @@ body {
   background-color: #d8f7e1;
 }
 
-h1 {
-  font-size: 1.8rem; 
-  color: white;
-}
-
 h2 { 
   font-size: 1.4rem;
   font-weight: bold;
-  color: #034078;
 }
 
 h3 {
@@ -31,11 +25,6 @@ h3 {
   padding-bottom: 1rem;
   font-size: 1.2rem;
   color: #959fa4;
-}
-
-.topnav { 
-  overflow: hidden; 
-  background-color: #3abc5c;
 }
 
 #controls, #timer {
@@ -46,6 +35,10 @@ h3 {
 
 .control-group {
   margin-bottom: 1rem;
+}
+
+.control-group > button{
+  margin: 1rem;
 }
 
 .card-grid { 
@@ -60,6 +53,24 @@ h3 {
 .card { 
   background-color: white; 
   box-shadow: 2px 2px 12px 1px rgba(140,140,140,.5);
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+}
+
+.card-title {
+  border-radius: 10px 10px 0 0 ;
+  background-color: #67b37b;
+  color:white !important;
+  margin-bottom: 1.5rem;
+}
+
+.card-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (max-width: 400px) {

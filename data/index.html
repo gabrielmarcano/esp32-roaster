@@ -2,7 +2,7 @@
 <html lang="es">
 
 <head>
-  <title>Tostador de Cacao</title>
+  <title>Tostador</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="utf-8">
   <link rel="icon" type="image/png" href="favicon.ico">
@@ -13,46 +13,63 @@
 </head>
 
 <body>
-  <header class="topnav">
-    <h1>PANEL DE CONTROL🍫</h1>
-  </header>
   <main class="card-grid">
     <article class="card">
-      <h2>Temperatura</h2>
-      <canvas id="gauge-temperature"></canvas>
+      <aside class="card-title" aria-label="temp-title">
+        <h2>Temperatura</h2>
+      </aside>
+      <section class="card-body">
+        <canvas id="gauge-temperature"></canvas>
+      </section>
     </article>
     <article class="card">
-      <h2>Humedad</h2>
-      <canvas id="gauge-humidity"></canvas>
+      <aside class="card-title" aria-label="humidity-title">
+        <h2>Humedad</h2>
+      </aside>
+      <section class="card-body">
+        <canvas id="gauge-humidity"></canvas>
+      </section>
     </article>
     <article class="card">
-      <h2>Controles</h2>
-      <section id="controls">
-        <section class="control-group">
-          <h3>Motor 1</h3>
-          <input class="tgl tgl-ios" id="switch1" type="checkbox" />
-          <label class="tgl-btn" for="switch1"></label>
-        </section>
-        <section class="control-group">
-          <h3>Motor 2</h3>
-          <input class="tgl tgl-ios" id="switch2" type="checkbox" />
-          <label class="tgl-btn" for="switch2"></label>
-        </section>
-        <section class="control-group">
-          <h3>Motor 3</h3>
-          <input class="tgl tgl-ios" id="switch3" type="checkbox" />
-          <label class="tgl-btn" for="switch3"></label>
+      <aside class="card-title" aria-label="motors-title">
+        <h2>Controles</h2>
+      </aside>
+      <section class="card-body">
+        <section id="controls">
+          <section class="control-group">
+            <h3>Motor 1</h3>
+            <input class="tgl tgl-ios" id="switch1" type="checkbox" />
+            <label class="tgl-btn" for="switch1"></label>
+          </section>
+          <section class="control-group">
+            <h3>Motor 2</h3>
+            <input class="tgl tgl-ios" id="switch2" type="checkbox" />
+            <label class="tgl-btn" for="switch2"></label>
+          </section>
+          <section class="control-group">
+            <h3>Motor 3</h3>
+            <input class="tgl tgl-ios" id="switch3" type="checkbox" />
+            <label class="tgl-btn" for="switch3"></label>
+          </section>
         </section>
       </section>
     </article>
     <article class="card">
-      <h2>Temporizador</h2>
-      <section id="timer">
-        <article role="timer" class="clock-wrap">
-          <section class="clock">
-            <time class="count">00:00</time>
-          </section>
-        </article>
+      <aside class="card-title" aria-label="time-title">
+        <h2>Temporizador</h2>
+      </aside>
+      <section class="card-body">
+        <section id="timer">
+          <article role="timer" class="clock-wrap">
+            <section class="clock">
+              <time class="count">00:00</time>
+            </section>
+          </article>
+        </section>
+        <section class="control-group">
+          <button class="timer-button" role="button" aria-label="reduce-time">-</button>
+          <button class="timer-button" role="button" aria-label="increase-time">+</button>
+        </section>
       </section>
     </article>
   </main>

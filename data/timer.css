@@ -49,3 +49,35 @@
   text-align: center;
   user-select: none;
 }
+
+.timer-button {
+  background-color: #ec366b;
+  border: 2px solid #c10c42;
+  border-radius: 30px;
+  box-shadow: #c10c42 4px 4px 0 0;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 24px;
+  padding: 0 25px;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  min-width: 100px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.timer-button:active {
+  box-shadow: #6f0d2a 2px 2px 0 0;
+  transform: translate(2px, 2px);
+}
+
+@media (min-width: 768px) {
+  .timer-button {
+    min-width: 120px;
+  }
+}

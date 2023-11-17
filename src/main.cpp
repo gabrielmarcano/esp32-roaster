@@ -69,7 +69,7 @@ int totalTimeInSeconds;             // Used to hold the total number of seconds 
 bool timerIsOn = false;             // Represent an active timer
 bool timerResponseIsActive = false; // Represent a timer response (after a timer finishes) is active
 bool isTimeA, isTimeB, isTimeC;     // Represent the selection of a timer configuration for the 3-state switch. Only one is true
-int lastMillis = 0;                 // Used to software dounce the push buttons for timer control
+int lastMillis = 0; // Used to software dounce the push buttons for timer control
 
 bool motors23Activated = false; // Used to turn on the motors 2 & 3 only once every timer response
 
@@ -238,6 +238,42 @@ void initServer()
         }
       });
 
+  // Add or reduce 60sec and update the timer
+  server.on(
+      "/time", HTTP_POST, [](AsyncWebServerRequest *request) {}, NULL,
+      [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+      {
+        StaticJsonDocument<64> response;
+        DeserializationError error = deserializeJson(response, (const char *)data, len);
+
+        if (!error)
+        {
+          if (response.containsKey("time") && response.containsKey("action"))
+          {
+            String action = response["action"].as<String>();
+            int time_in_seconds = response["time"].as<int>();
+
+            if (action == "add")
+            {
+              counter += time_in_seconds;
+              totalTimeInSeconds += time_in_seconds;
+              timerIsOn = true;
+            }
+            else if (action == "reduce")
+            {
+              counter -= time_in_seconds;
+            }
+          }
+
+          events.send(getTimeValues().c_str(), "timer", millis());
+          request->send(200, "text/plain", "ok");
+        }
+        else
+        {
+          request->send(404, "text/plain", error.c_str());
+        }
+      });
+
   events.onConnect([](AsyncEventSourceClient *client)
                    {
     if(client->lastId()){
@@ -305,6 +341,8 @@ void handleTimerAndResponse()
   {
     timerIsOn = false;
     timerResponseIsActive = true;
+    totalTimeInSeconds = 0;
+    counter = 0;
 
     // Print the title again
     lcd.setCursor(0, 0);
@@ -390,8 +428,8 @@ void IRAM_ATTR handleAddTime()
 {
   if (millis() - lastMillis > 60)
   { // Software debouncing button
-    totalTimeInSeconds = totalTimeInSeconds + 60;
-    counter = counter + 60;
+    totalTimeInSeconds += 60;
+    counter += 60;
     timerIsOn = true;
   }
   lastMillis = millis();
@@ -402,8 +440,8 @@ void IRAM_ATTR handleReduceTime()
 {
   if (millis() - lastMillis > 60)
   { // Software debouncing button
-    totalTimeInSeconds = totalTimeInSeconds - 60;
-    counter = counter - 60;
+    totalTimeInSeconds -= 60;
+    counter -= 60;
   }
   lastMillis = millis();
 }
