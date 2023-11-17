@@ -223,11 +223,26 @@ void initServer()
           }
           if (response.containsKey("motor2"))
           {
-            digitalWrite(MOTOR2_PIN, response["motor2"].as<bool>());
+            bool motor2state = response["motor2"].as<bool>();
+            digitalWrite(MOTOR2_PIN, motor2state);
+
+            // When motor2 or motor3 are manually turned off, then we reset the timerResponse so another timer can turn both motors on again
+            if (motor2state == false)
+            {
+              motors23Activated = false;
+              timerResponseIsActive = false;
+            }
           }
           if (response.containsKey("motor3"))
           {
-            digitalWrite(MOTOR3_PIN, response["motor3"].as<bool>());
+            bool motor3state = response["motor3"].as<bool>();
+            digitalWrite(MOTOR3_PIN, motor3state);
+
+            if (motor3state == false)
+            {
+              motors23Activated = false;
+              timerResponseIsActive = false;
+            }
           }
           events.send(getMotorStates().c_str(), "states", millis());
           request->send(200, "text/plain", "ok");
