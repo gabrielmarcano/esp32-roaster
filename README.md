@@ -29,24 +29,25 @@
 
 All logic depends on the data given by the **Thermocouple** & **DHT22** sensors, and the selected mode in the **4 Position Rotary Switch**. It's intention is to control 3 motors, which will turn on or off based on the temperature that it reaches.
 
-When the temperature reaches 100ºC, 150ºC or 190ºC (depending on the mode) it feeds a relay that controls the first motor,
+When the temperature reaches 140ºC, 170ºC or 180ºC (depending on the mode) it feeds a relay that controls the first motor,
 and also starts a timer that can be 12, 15 or 18 minutes which also depends on the mode.
+
+There will be two push buttons, one will add +1min to the time (and start the timer if there isn't one already), and the other will reduce -1min to the time.
 
 When the timer stops, a buzzer starts making noise and also feeds the other 2 relays that controls the second & third motor.
 
-There will also be two buttons, one will add +1min to the time (and start the timer if it's stopped), and the other will substract -1min to the time.
-
-> Motors can only be stopped manually by either the security button or through the web interface.
+> Motors can only be stopped manually by either the security button or through the web interface. If Motor 2 or Motor 3 are stopped via the web interface, they will stop any action taken after the timer stops.
 
 ### Modes
 
 | Position | Name   | Temperature | Time |
 | -------- | ------ | ----------- | ---- |
-| 1        | Peanut | 100ºC       | 12m  |
-| 2        | Coffee | 150ºC       | 15m  |
-| 3        | Cocoa  | 190ºC       | 18m  |
+| 0        | Off    | 0ºC         | 0m   |
+| 1        | Peanut | 180ºC       | 20m  |
+| 2        | Cocoa  | 140ºC       | 33m  |
+| 3        | Coffee | 170ºC       | 12m  |
 
-> The default state of the switch does not set a timer.
+> The default state of the switch does not set a timer. Timer response can also be turned off by setting the state of the switch to the position 0 (i.e. the default state.)
 
 ## Project structure
 
@@ -72,8 +73,6 @@ Use env vars to store your credentials and build the firmware locally.
 ```cpp
 #define WIFI_SSID "SSID"
 #define WIFI_PASSWORD "PASSWORD"
-#define HUSARNET_JOIN_CODE "XXXXXXXX"
-#define HUSARNET_HOSTNAME "DEVICE"
 ```
 
 ## Hardware
@@ -98,7 +97,7 @@ Use env vars to store your credentials and build the firmware locally.
 
 The ESP32 also act as a server for controlling the motor states, showing the temperature and humidity with gauges, and showing the remaining time in the timer. The server uses [SSE](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) to update the values on the web.
 
-The web interface can _read_ all values, and can only _write_ to the motor states values.
+The web interface can _read_ all values, and can only _write_ to the motor states and timer values.
 
 OTA updates are available thanks to [ElegantOTA](https://github.com/ayushsharma82/ElegantOTA).
 
@@ -107,14 +106,9 @@ OTA updates are available thanks to [ElegantOTA](https://github.com/ayushsharma8
 | /events  | Event Source with `readings`, `timer` & `states` events                                                                      |
 | /data    | **GET** - Request to update the temperature & humidity readings, timer remaining time and motors states on the web interface |
 | /motors  | **POST** - Request to control the state of the motors throught the web interface                                             |
+| /time    | **POST** - Request to increase or reduce the timer by 60 seconds                                                             |
 | /reset   | **POST** - Request to perform a remote software reset of the ESP32                                                           |
 | /update  | Firmware & Filesystem OTA updates                                                                                            |
-
-### VPN
-
-> TODO: This is not implemented yet
-
-The ESP32 is connected to a VPN using [Husarnet](https://github.com/husarnet/husarnet-esp32). With this, the web interface can be accessed remotely, and it also enables simple remote OTA updates.
 
 ## Wiring
 
