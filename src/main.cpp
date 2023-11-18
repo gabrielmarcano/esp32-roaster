@@ -16,8 +16,7 @@
 
 #if __has_include("env.h")
 
-// For local development (rename env-template.h and type your WiFi and
-// Husarnet credentials there)
+// For local development (rename env-template.h to env.h and type your WiFi credentials there)
 #include <env.h>
 
 #else
@@ -69,7 +68,7 @@ int totalTimeInSeconds;             // Used to hold the total number of seconds 
 bool timerIsOn = false;             // Represent an active timer
 bool timerResponseIsActive = false; // Represent a timer response (after a timer finishes) is active
 bool isTimeA, isTimeB, isTimeC;     // Represent the selection of a timer configuration for the 3-state switch. Only one is true
-int lastMillis = 0; // Used to software dounce the push buttons for timer control
+int lastMillis = 0;                 // Used to software dounce the push buttons for timer control
 
 bool motors23Activated = false; // Used to turn on the motors 2 & 3 only once every timer response
 
