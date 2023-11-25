@@ -272,6 +272,7 @@ void initServer()
               counter += time_in_seconds;
               totalTimeInSeconds += time_in_seconds;
               timerIsOn = true;
+              timerCount += 1;
             }
             else if (action == "reduce")
             {
