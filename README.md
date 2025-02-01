@@ -61,7 +61,7 @@ The project structure is as follows:
 
 Use env vars to store your credentials and build the firmware locally.
 
-1 - Run the command: `mv src/env-template.h src/env.h`
+1 - Run the command: `cp src/env-template.h src/env.h`
 
 2 - Edit the values
 
