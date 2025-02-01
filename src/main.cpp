@@ -4,7 +4,6 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
-#include <AsyncElegantOTA.h>
 
 #include "SPIFFS.h"
 
@@ -298,9 +297,6 @@ void initServer()
     // and set reconnect delay to 1 second
     client->send("hello!", NULL, millis(), 10000); });
   server.addHandler(&events);
-
-  // Start OTA service
-  AsyncElegantOTA.begin(&server);
 
   // Start server
   server.begin();
